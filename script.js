@@ -2,7 +2,7 @@ const onecolor = one.color;
 
 let input = ""
 let lines = [
-  "Aperature Science Enrichment System [Version 3.12.38]", 
+  "Aperature Science Enrichment Center [Version 3.12.38]", 
   "(c) Aperature Science. All rights reserved.", 
   ""];
 
@@ -132,7 +132,7 @@ function renderWorld(delta) {
 
   // redraw
   bufferContext.textAlign = 'left';
-  bufferContext.font = '12px "Inconsolata"';
+  bufferContext.font = '12px monospace';
 //   for (let k=0; k<20; k++) {
 //   bufferContext.fillText("C:\\User\\Admin>  " + text, 10, 10+k*12);}
     let once = true;
@@ -254,7 +254,6 @@ const quadCommand = regl({
         void main() {
             // @todo use uniform
             vec2 consoleWH = vec2(consoleW, consoleH);
-            bool once = true;
 
             // @todo use uniforms
             float glitchLine = mod(0.8 + time * 0.07, 1.0);
@@ -370,7 +369,7 @@ function CRT() {
 CRT();
 
 addEventListener("keypress", (e) => {
-    if (bufferContext.measureText("C:\\User\\Admin> "+input).width >= 450 /* 360 */) {
+    if (input.length == 50) {
         return
     }
     if (e.key.length > 1) {
@@ -389,6 +388,7 @@ addEventListener("keydown", (e) => {
     }
     if (e.key === "Enter") {
       lines.push("C:\\User\\Admin> "+input);
+      parseMessage(input);
       if (scrollcount+18 < lines.length) {
         scrollcount = lines.length-19;
       }
@@ -405,3 +405,13 @@ addEventListener("keydown", (e) => {
         }
     }
 })
+
+function respond(list) {
+  for (let i=0; i<list.length;i++) {
+    while (list[i].length > 0) {
+      lines.push(list[i].substring(0, 65));
+      list[i] = list[i].substring(65);
+    }
+  }
+  lines.push("");
+}
