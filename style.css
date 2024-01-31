@@ -42,4 +42,13 @@ html, body {
     box-shadow: 0 0 50px 50px #000;
     background: #000;
   }
-  
+
+img {
+    display: none;
+}
+
+
+canvas {
+    width: 640px;
+    height: 480px;
+}

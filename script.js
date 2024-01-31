@@ -1,5 +1,9 @@
 const onecolor = one.color;
 
+// let text = "wow";
+let lines = ["ksjfklsjdkf","dkjfsklfjksd", "dsjfkljskldjfklsjdklf", "sjfklhjskdjfkljsd", "kdjfklsdjfk", "kjdfkljsdklf", "djfkljsdf", "kjkldsjfklsdjfklj", "khfklsjdklf", "kcuvoisd", "fjsdiofujosikd", "ksjfklsjdkf","dkjfsklfjksd", "dsjfkljskldjfklsjdklf", "sjfklhjskdjfkljsd", "kdjfklsdjfk", "kjdfkljsdklf", "djfkljsdf", "kjkldsjfklsdjfklj", "khfklsjdklf"];
+let scrollcount = 0;
+
 function hex2vector(cssHex) {
     const pc = onecolor(cssHex);
 
@@ -125,8 +129,12 @@ function renderWorld(delta) {
   // redraw
   bufferContext.textAlign = 'left';
   bufferContext.font = '12px "Inconsolata"';
-  bufferContext.fillText("Never gonna give you up never gonna give you up never gonna let you down never gonna run ", 10, 100);
-  bufferContext.fillText("around you and desert you never gonna say goodbye and hurt you.", 10, 115);
+//   for (let k=0; k<20; k++) {
+//   bufferContext.fillText("C:\\User\\Admin>  " + text, 10, 10+k*12);}
+    for (let i=scrollcount;i<scrollcount+20;i++) {
+        bufferContext.fillText(lines[i], 10, 10+(i-scrollcount)*12);
+    }
+    // bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
 
   trails.forEach((trail, index) => {
     const k = index / trails.length;
@@ -234,10 +242,11 @@ const quadCommand = regl({
         void main() {
             // @todo use uniform
             vec2 consoleWH = vec2(consoleW, consoleH);
+            bool once = true;
 
             // @todo use uniforms
             float glitchLine = mod(0.8 + time * 0.07, 1.0);
-            float glitchFlutter = mod(time * 40.0, 1.0); // timed to be slightly out of sync from main frame rate
+            float glitchFlutter = mod(time * 60.0, 1.0); // timed to be slightly out of sync from main frame rate
             float glitchAmount = 0.06 + glitchFlutter * 0.01;
             float glitchDistance = 0.04 + glitchFlutter * 0.15;
 
@@ -280,7 +289,7 @@ const quadCommand = regl({
                     intensity * pixelRGB + glitchOffset * 1.5
                 ) * (1.0 - 0.2 * scanlineAmount), 0.2);
             } else {
-                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                gl_FragColor = vec4(0, 0, 0, 0.0);
             }
         }
     `,
@@ -348,3 +357,26 @@ function rafBody() {
 // kickstart the loop
 rafBody();
 
+addEventListener("keypress", (e) => {
+    if (bufferContext.measureText(text).width >= 360) {
+        return
+    }
+    text = text + e.key;
+})
+
+addEventListener("keydown", (e) => {
+    console.log(e.key);
+    if (e.key === "Backspace") {
+        text = text.substring(0, text.length - 1)
+    }
+    if (e.key === "ArrowUp") {
+        if (scrollcount > 0) {
+            scrollcount--;
+        }
+    }
+    if (e.key === "ArrowDown") {
+        if (scrollcount < lines.length) {
+            scrollcount++;
+        }
+    }
+})
