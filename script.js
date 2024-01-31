@@ -1,7 +1,11 @@
 const onecolor = one.color;
 
-// let text = "wow";
-let lines = ["ksjfklsjdkf","dkjfsklfjksd", "dsjfkljskldjfklsjdklf", "sjfklhjskdjfkljsd", "kdjfklsdjfk", "kjdfkljsdklf", "djfkljsdf", "kjkldsjfklsdjfklj", "khfklsjdklf", "kcuvoisd", "fjsdiofujosikd", "ksjfklsjdkf","dkjfsklfjksd", "dsjfkljskldjfklsjdklf", "sjfklhjskdjfkljsd", "kdjfklsdjfk", "kjdfkljsdklf", "djfkljsdf", "kjkldsjfklsdjfklj", "khfklsjdklf"];
+let input = ""
+let lines = [
+  "Aperature Science Enrichment System [Version 3.12.38]", 
+  "(c) Aperature Science. All rights reserved.", 
+  ""];
+
 let scrollcount = 0;
 
 function hex2vector(cssHex) {
@@ -131,7 +135,15 @@ function renderWorld(delta) {
   bufferContext.font = '12px "Inconsolata"';
 //   for (let k=0; k<20; k++) {
 //   bufferContext.fillText("C:\\User\\Admin>  " + text, 10, 10+k*12);}
+    let once = true;
     for (let i=scrollcount;i<scrollcount+20;i++) {
+        if (lines[i] === undefined) {
+          if (once) {
+            bufferContext.fillText("C:\\User\\Admin> " + input, 10, 10+(i-scrollcount)*12);
+            once = false;
+          }
+          continue
+        }
         bufferContext.fillText(lines[i], 10, 10+(i-scrollcount)*12);
     }
     // bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
@@ -335,7 +347,7 @@ regl.clear({
 // main loop
 let currentTime = performance.now();
 
-function rafBody() {
+function CRT() {
   // measure time
   const newTime = performance.now();
   const delta = Math.min(0.05, (newTime - currentTime) / 1000); // apply limiter to avoid frame skips
@@ -351,23 +363,36 @@ function rafBody() {
       fgColor: termFgColor
   });
 
-  requestAnimationFrame(rafBody);
+  requestAnimationFrame(CRT);
 }
 
 // kickstart the loop
-rafBody();
+CRT();
 
 addEventListener("keypress", (e) => {
-    if (bufferContext.measureText(text).width >= 360) {
+    if (bufferContext.measureText("C:\\User\\Admin> "+input).width >= 450 /* 360 */) {
         return
     }
-    text = text + e.key;
+    if (e.key.length > 1) {
+      return
+    }
+    input = input + e.key;
+    if (scrollcount+19 < lines.length-1) {
+      scrollcount = lines.length-19;
+    }
 })
 
 addEventListener("keydown", (e) => {
     console.log(e.key);
     if (e.key === "Backspace") {
-        text = text.substring(0, text.length - 1)
+      input = input.substring(0, input.length - 1)
+    }
+    if (e.key === "Enter") {
+      lines.push("C:\\User\\Admin> "+input);
+      if (scrollcount+18 < lines.length) {
+        scrollcount = lines.length-19;
+      }
+      input = "";
     }
     if (e.key === "ArrowUp") {
         if (scrollcount > 0) {
