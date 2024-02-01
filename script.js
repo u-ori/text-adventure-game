@@ -1,6 +1,7 @@
 const onecolor = one.color;
 
 let input = ""
+let userInputEnabled = true;
 let lines = [
   "Fluxion Systems Operating System [Version 2.1.24]", 
   "(c) Fluxion Systems. All rights reserved.", 
@@ -141,7 +142,7 @@ function renderWorld(delta) {
     let once = true;
     for (let i=scrollcount;i<scrollcount+20;i++) {
         if (lines[i] === undefined) {
-          if (once) {
+          if (once && userInputEnabled) {
             bufferContext.fillText("C:\\User\\Admin> " + input, 10, 10+(i-scrollcount)*12);
             once = false;
           }
@@ -373,16 +374,19 @@ function CRT() {
 CRT();
 
 addEventListener("keypress", (e) => {
-    if (input.length == 50) {
-        return
-    }
-    if (e.key.length > 1) {
-      return
-    }
-    input = input + e.key;
-    if (scrollcount+19 < lines.length-1) {
-      scrollcount = lines.length-19;
-    }
+  if (!userInputEnabled) {
+    return
+  }
+  if (input.length == 50) {
+    return
+  }
+  if (e.key.length > 1) {
+    return
+  }
+  input = input + e.key;
+  if (scrollcount+19 < lines.length-1) {
+    scrollcount = lines.length-19;
+  }
 })
 
 addEventListener("keydown", (e) => {
@@ -390,7 +394,7 @@ addEventListener("keydown", (e) => {
     if (e.key === "Backspace") {
       input = input.substring(0, input.length - 1)
     }
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && userInputEnabled) {
       lines.push("C:\\User\\Admin> "+input);
       parseMessage(input);
       if (scrollcount+18 < lines.length) {
@@ -425,6 +429,9 @@ addEventListener("keydown", (e) => {
 function respond(list) {
   let lineIndex = lines.length;
   for (let i=0; i<list.length;i++) {
+    if (list[i].length === 0) {
+      lines.push("");
+    }
     while (list[i].length > 0) {
       lines.push(list[i].substring(0, 65));
       list[i] = list[i].substring(65);
