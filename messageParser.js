@@ -11,7 +11,7 @@ function parseMessage(str) {
     } else if (command === "cls") {
         lines = [];
         scrollcount = 0;
-    }
+    } else if (command === "") {}
     else {
         respond([`'${command}' is not recognized as an internal or external command or operable program.`]);
     }
