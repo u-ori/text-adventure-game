@@ -2,9 +2,12 @@ const onecolor = one.color;
 
 let input = ""
 let lines = [
-  "Aperature Science Enrichment Center [Version 3.12.38]", 
-  "(c) Aperature Science. All rights reserved.", 
-  ""];
+  "Fluxion Systems Operating System [Version 2.1.24]", 
+  "(c) Fluxion Systems. All rights reserved.", 
+  "",
+  "You have one unread email.", 
+  ""
+];
 
 let scrollcount = 0;
 
