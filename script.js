@@ -200,7 +200,7 @@ function renderWorld(delta) {
 }
 
 // init WebGL
-const regl = createREGL({
+let regl = createREGL({
     canvas: document.body.querySelector('canvas'),
     attributes: { antialias: true, alpha: false, preserveDrawingBuffer: true }
 });
