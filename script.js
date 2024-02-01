@@ -423,6 +423,7 @@ addEventListener("keydown", (e) => {
 })
 
 function respond(list) {
+  let lineIndex = lines.length;
   for (let i=0; i<list.length;i++) {
     while (list[i].length > 0) {
       lines.push(list[i].substring(0, 65));
@@ -430,4 +431,5 @@ function respond(list) {
     }
   }
   lines.push("");
+  return lineIndex;
 }
