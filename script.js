@@ -254,9 +254,10 @@ const quadCommand = regl({
         void main() {
             // @todo use uniform
             vec2 consoleWH = vec2(consoleW, consoleH);
+            float glitchLine = mod(0.8 + time * 0.06, 1.0);
 
             // @todo use uniforms
-            float glitchLine = mod(0.8 + time * 0.07, 1.0);
+
             float glitchFlutter = mod(time * 60.0, 1.0); // timed to be slightly out of sync from main frame rate
             float glitchAmount = 0.06 + glitchFlutter * 0.01;
             float glitchDistance = 0.04 + glitchFlutter * 0.15;
