@@ -399,14 +399,26 @@ addEventListener("keydown", (e) => {
       input = "";
     }
     if (e.key === "ArrowUp") {
-        if (scrollcount > 0) {
+      if (e.shiftKey) {
+        for (let i=0;i<5;i++) {
+          if (scrollcount > 0) {
             scrollcount--;
+          }
         }
+      } else if (scrollcount > 0) {
+        scrollcount--;
+      }
     }
     if (e.key === "ArrowDown") {
-        if (scrollcount < lines.length) {
+      if (e.shiftKey) {
+        for (let i=0;i<5;i++) {
+          if (scrollcount < lines.length) {
             scrollcount++;
+          }
         }
+      } else if (scrollcount < lines.length) {
+        scrollcount++;
+      }
     }
 })
 
