@@ -33,13 +33,13 @@ function parseMessage(str) {
             "From: Your friend",
             " ",
             "Have you seen this new game?",
-            "https://game.oridev.net",
-            "You can install it by running `INSTALL thegame`"
+            "It's called The Last Hope",
+            "You can install it by running `install thelasthope`"
         ]);
     } else if (command === "cls") {
         lines = [];
         scrollcount = 0;
-    } else if (command === "thegame") {
+    } else if (command === "thelasthope") {
         showDirectory = false;
         respond(["The protaganist awakens not knowing where they are at. The room  is dark, but bright enought to see. "])
     } else if (command === "") {}
