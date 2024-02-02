@@ -3,13 +3,16 @@ const onecolor = one.color;
 let input = ""
 let userInputEnabled = true;
 let showDirectory = true;
-let lines = [
+let commandLines = [
   "Fluxion Systems Operating System [Version 2.1.24]", 
   "(c) Fluxion Systems. All rights reserved.", 
   "",
   "You have one unread email.", 
   ""
 ];
+let gameLines = [
+  "The protaganist awakens not knowing where they are at. The room  is dark, but bright enought to see. "
+]
 
 let scrollcount = 0;
 
@@ -142,14 +145,14 @@ function renderWorld(delta) {
 //   bufferContext.fillText("C:\\User\\Admin>  " + text, 10, 10+k*12);}
     let once = true;
     for (let i=scrollcount;i<scrollcount+20;i++) {
-        if (lines[i] === undefined) {
+        if (commandLines[i] === undefined) {
           if (once && userInputEnabled) {
             bufferContext.fillText(showDirectory ? "C:\\User\\Admin> " + input : input, 10, 10+(i-scrollcount)*12);
             once = false;
           }
           continue
         }
-        bufferContext.fillText(lines[i], 10, 10+(i-scrollcount)*12);
+        bufferContext.fillText(commandLines[i], 10, 10+(i-scrollcount)*12);
     }
     // bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
 
@@ -385,8 +388,8 @@ addEventListener("keypress", (e) => {
     return
   }
   input = input + e.key;
-  if (scrollcount+19 < lines.length-1) {
-    scrollcount = lines.length-19;
+  if (scrollcount+19 < commandLines.length-1) {
+    scrollcount = commandLines.length-19;
   }
 })
 
@@ -396,10 +399,10 @@ addEventListener("keydown", (e) => {
       input = input.substring(0, input.length - 1)
     }
     if (e.key === "Enter" && userInputEnabled) {
-      lines.push(showDirectory ? "C:\\User\\Admin> "+input : input);
+      commandLines.push(showDirectory ? "C:\\User\\Admin> "+input : input);
       parseMessage(input);
-      if (scrollcount+18 < lines.length) {
-        scrollcount = lines.length-19;
+      if (scrollcount+18 < commandLines.length) {
+        scrollcount = commandLines.length-19;
       }
       input = "";
     }
@@ -417,27 +420,27 @@ addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") {
       if (e.shiftKey) {
         for (let i=0;i<5;i++) {
-          if (scrollcount < lines.length) {
+          if (scrollcount < commandLines.length) {
             scrollcount++;
           }
         }
-      } else if (scrollcount < lines.length) {
+      } else if (scrollcount < commandLines.length) {
         scrollcount++;
       }
     }
 })
 
 function respond(list) {
-  let lineIndex = lines.length;
+  let lineIndex = commandLines.length;
   for (let i=0; i<list.length;i++) {
     if (list[i].length === 0) {
-      lines.push("");
+      commandLines.push("");
     }
     while (list[i].length > 0) {
-      lines.push(list[i].substring(0, 65));
+      commandLines.push(list[i].substring(0, 65));
       list[i] = list[i].substring(65);
     }
   }
-  lines.push("");
+  commandLines.push("");
   return lineIndex;
 }
