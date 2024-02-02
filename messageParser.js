@@ -40,7 +40,8 @@ function parseMessage(str) {
         lines = [];
         scrollcount = 0;
     } else if (command === "thegame") {
-        respond(["The protaganist awakens not know where they are at."])
+        showDirectory = false;
+        respond(["The protaganist awakens not knowing where they are at. The room  is dark, but bright enought to see. "])
     } else if (command === "") {}
     else {
         respond([`'${command}' is not recognized as an internal or external command or operable program.`]);

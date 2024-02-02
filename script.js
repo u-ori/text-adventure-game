@@ -2,6 +2,7 @@ const onecolor = one.color;
 
 let input = ""
 let userInputEnabled = true;
+let showDirectory = true;
 let lines = [
   "Fluxion Systems Operating System [Version 2.1.24]", 
   "(c) Fluxion Systems. All rights reserved.", 
@@ -143,7 +144,7 @@ function renderWorld(delta) {
     for (let i=scrollcount;i<scrollcount+20;i++) {
         if (lines[i] === undefined) {
           if (once && userInputEnabled) {
-            bufferContext.fillText("C:\\User\\Admin> " + input, 10, 10+(i-scrollcount)*12);
+            bufferContext.fillText(showDirectory ? "C:\\User\\Admin> " + input : input, 10, 10+(i-scrollcount)*12);
             once = false;
           }
           continue
@@ -395,7 +396,7 @@ addEventListener("keydown", (e) => {
       input = input.substring(0, input.length - 1)
     }
     if (e.key === "Enter" && userInputEnabled) {
-      lines.push("C:\\User\\Admin> "+input);
+      lines.push(showDirectory ? "C:\\User\\Admin> "+input : input);
       parseMessage(input);
       if (scrollcount+18 < lines.length) {
         scrollcount = lines.length-19;
