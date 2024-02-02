@@ -1,29 +1,15 @@
 const onecolor = one.color;
 
-let input = ""
-let userInputEnabled = true;
-let showDirectory = true;
-let commandLines = [
-  "Fluxion Systems Operating System [Version 2.1.24]", 
-  "(c) Fluxion Systems. All rights reserved.", 
-  "",
-  "You have one unread email.", 
-  ""
-];
-let gameLines = [
-  "The protaganist awakens not knowing where they are at. The room  is dark, but bright enought to see. "
-]
-
-let scrollcount = 0;
+let currentBuffer = commandBuffer;
 
 function hex2vector(cssHex) {
-    const pc = onecolor(cssHex);
+  const pc = onecolor(cssHex);
 
-    return vec3.fromValues(
-        pc.red(),
-        pc.green(),
-        pc.blue()
-    );
+  return vec3.fromValues(
+    pc.red(),
+    pc.green(),
+    pc.blue()
+  );
 }
 
 const charW = 6;
@@ -85,13 +71,13 @@ bannerImgSet[3].src = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmln
 const SEED_OFFSET = new Date().getTime();
 
 function randomize(seed) {
-    const intSeed = seed % 2147483647;
-    const safeSeed = intSeed > 0 ? intSeed : intSeed + 2147483646;
-    return safeSeed * 16807 % 2147483647;
+  const intSeed = seed % 2147483647;
+  const safeSeed = intSeed > 0 ? intSeed : intSeed + 2147483646;
+  return safeSeed * 16807 % 2147483647;
 }
 
 function getRandomizedFraction(seed) {
-    return (seed - 1) / 2147483646;
+  return (seed - 1) / 2147483646;
 }
 
 // main character trail state
@@ -100,7 +86,7 @@ function createTrail() {
   const cy = 0;
   const cvy = 5 + Math.random() * 15;
 
-  return [ cx, cy, cvy ];
+  return [cx, cy, cvy];
 }
 
 const trails = Array.apply(null, new Array(30)).map((_, index) => {
@@ -130,36 +116,34 @@ function renderWorld(delta) {
   // fade screen every few frames
   // (not every frame, for long trails without rounding artifacts)
   fadeCountdown -= delta;
-  
+
   if (fadeCountdown < 0) {
-    bufferContext.fillStyle = 'rgba(0, 0, 0, 0.5)';  
+    bufferContext.fillStyle = 'rgba(0, 0, 0, 0.5)';
     bufferContext.fillRect(0, 0, bufferW, bufferH);
-    
+
     fadeCountdown += 0.2;
   }
 
   // redraw
   bufferContext.textAlign = 'left';
   bufferContext.font = '12px monospace';
-//   for (let k=0; k<20; k++) {
-//   bufferContext.fillText("C:\\User\\Admin>  " + text, 10, 10+k*12);}
-    let once = true;
-    for (let i=scrollcount;i<scrollcount+20;i++) {
-        if (commandLines[i] === undefined) {
-          if (once && userInputEnabled) {
-            bufferContext.fillText(showDirectory ? "C:\\User\\Admin> " + input : input, 10, 10+(i-scrollcount)*12);
-            once = false;
-          }
-          continue
-        }
-        bufferContext.fillText(commandLines[i], 10, 10+(i-scrollcount)*12);
+  let once = true;
+  for (let i = currentBuffer.scroll; i < currentBuffer.scroll + 20; i++) {
+    if (currentBuffer.lines[i] === undefined) {
+      if (once && currentBuffer.inputEnabled) {
+        bufferContext.fillText(currentBuffer.input, 10, 10 + (i - currentBuffer.scroll) * 12);
+        once = false;
+      }
+      continue
     }
-    // bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
+    bufferContext.fillText(currentBuffer.lines[i], 10, 10 + (i - currentBuffer.scroll) * 12);
+  }
+  // bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
 
   trails.forEach((trail, index) => {
     const k = index / trails.length;
     const charY = Math.floor(trail[1]);
-    
+
     // randomize based on character position
     const charSeed = index + (trail[0] + charY * bufferCW) * 50;
     const outSeed = randomize(charSeed * 1500 + SEED_OFFSET);
@@ -173,12 +157,12 @@ function renderWorld(delta) {
     //   charY * charH + charH,
     //   charW // restrict width, but allow a tiny bit of spillover
     // );
-  }); 
-  
+  });
+
   // fade screen every few frames
   // (not every frame, for long trails without rounding artifacts)
   bannerCountdown -= delta;
-  
+
   if (bannerCountdown < -1.5) {
     bufferContext.fillStyle = `hsla(${180 + Math.random() * 220}, 100%, 30%, 1)`;
     bufferContext.fillRect(0, 0, bufferW, bufferH);
@@ -192,7 +176,7 @@ function renderWorld(delta) {
 
     // bufferContext.fillStyle = `hsla(${100 + Math.random() * 220}, 100%, 10%, 1)`;
     // bufferContext.font = '250px sans-serif';
-    
+
     // bufferContext.save();
     // bufferContext.scale(2, 1);
     // bufferContext.fillText(
@@ -201,29 +185,29 @@ function renderWorld(delta) {
     // );
     // bufferContext.restore();
   }
-  
+
   if (bannerCountdown < 0) {
-      bannerCountdown += 10 + Math.random() * 10;
+    bannerCountdown += 10 + Math.random() * 10;
   }
 }
 
 // init WebGL
 let regl = createREGL({
-    canvas: document.body.querySelector('canvas'),
-    attributes: { antialias: true, alpha: false, preserveDrawingBuffer: true }
+  canvas: document.body.querySelector('canvas'),
+  attributes: { antialias: true, alpha: false, preserveDrawingBuffer: true }
 });
 
 const spriteTexture = regl.texture({
-    width: 512,
-    height: 256,
-    mag: 'linear'
+  width: 512,
+  height: 256,
+  mag: 'linear'
 });
 
 const termFgColor = hex2vector('#fee');
 const termBgColor = hex2vector('#002a2a');
 
 const quadCommand = regl({
-    vert: `
+  vert: `
         precision mediump float;
 
         attribute vec3 position;
@@ -241,7 +225,7 @@ const quadCommand = regl({
         }
     `,
 
-    frag: `
+  frag: `
         precision mediump float;
 
         varying vec2 uvPosition;
@@ -314,42 +298,42 @@ const quadCommand = regl({
         }
     `,
 
-    attributes: {
-        position: regl.buffer([
-            [ -1, -1, 0 ],
-            [ 1, -1, 0 ],
-            [ -1, 1, 0 ],
-            [ 1, 1, 0 ]
-        ])
-    },
+  attributes: {
+    position: regl.buffer([
+      [-1, -1, 0],
+      [1, -1, 0],
+      [-1, 1, 0],
+      [1, 1, 0]
+    ])
+  },
 
-    uniforms: {
-        time: regl.context('time'),
-        camera: regl.prop('camera'),
-        sprite: spriteTexture,
-        bgColor: regl.prop('bgColor'),
-        fgColor: regl.prop('fgColor')
-    },
+  uniforms: {
+    time: regl.context('time'),
+    camera: regl.prop('camera'),
+    sprite: spriteTexture,
+    bgColor: regl.prop('bgColor'),
+    fgColor: regl.prop('fgColor')
+  },
 
-    primitive: 'triangle strip',
-    count: 4,
+  primitive: 'triangle strip',
+  count: 4,
 
-    depth: {
-        enable: false
-    },
+  depth: {
+    enable: false
+  },
 
-    blend: {
-        enable: true,
-        func: {
-            src: 'src alpha',
-            dst: 'one minus src alpha'
-        }
+  blend: {
+    enable: true,
+    func: {
+      src: 'src alpha',
+      dst: 'one minus src alpha'
     }
+  }
 });
 
 regl.clear({
-    depth: 1,
-    color: [ 0, 0, 0, 1 ]
+  depth: 1,
+  color: [0, 0, 0, 1]
 });
 
 // main loop
@@ -360,15 +344,15 @@ function CRT() {
   const newTime = performance.now();
   const delta = Math.min(0.05, (newTime - currentTime) / 1000); // apply limiter to avoid frame skips
   currentTime = newTime;
-  
+
   updateWorld(delta);
-  renderWorld(delta);  
+  renderWorld(delta);
 
   regl.poll();
   spriteTexture.subimage(bufferContext, consolePad, consolePad);
   quadCommand({
-      bgColor: termBgColor,
-      fgColor: termFgColor
+    bgColor: termBgColor,
+    fgColor: termFgColor
   });
 
   requestAnimationFrame(CRT);
@@ -378,69 +362,59 @@ function CRT() {
 CRT();
 
 addEventListener("keypress", (e) => {
-  if (!userInputEnabled) {
+  if (!currentBuffer.inputEnabled) {
     return
   }
-  if (input.length == 50) {
+  if (currentBuffer.input.length == 50) {
     return
   }
   if (e.key.length > 1) {
     return
   }
-  input = input + e.key;
-  if (scrollcount+19 < commandLines.length-1) {
-    scrollcount = commandLines.length-19;
+  currentBuffer.input = currentBuffer.input + e.key;
+  if (currentBuffer.scroll + 19 < currentBuffer.lines.length - 1) {
+    currentBuffer.scroll = currentBuffer.lines.length - 19;
   }
 })
 
 addEventListener("keydown", (e) => {
-    console.log(e.key);
-    if (e.key === "Backspace") {
-      input = input.substring(0, input.length - 1)
-    }
-    if (e.key === "Enter" && userInputEnabled) {
-      commandLines.push(showDirectory ? "C:\\User\\Admin> "+input : input);
-      parseMessage(input);
-      if (scrollcount+18 < commandLines.length) {
-        scrollcount = commandLines.length-19;
-      }
-      input = "";
-    }
-    if (e.key === "ArrowUp") {
-      if (e.shiftKey) {
-        for (let i=0;i<5;i++) {
-          if (scrollcount > 0) {
-            scrollcount--;
-          }
-        }
-      } else if (scrollcount > 0) {
-        scrollcount--;
-      }
-    }
-    if (e.key === "ArrowDown") {
-      if (e.shiftKey) {
-        for (let i=0;i<5;i++) {
-          if (scrollcount < commandLines.length) {
-            scrollcount++;
-          }
-        }
-      } else if (scrollcount < commandLines.length) {
-        scrollcount++;
-      }
-    }
-})
-
-function respond(list) {
-  let lineIndex = commandLines.length;
-  for (let i=0; i<list.length;i++) {
-    if (list[i].length === 0) {
-      commandLines.push("");
-    }
-    while (list[i].length > 0) {
-      commandLines.push(list[i].substring(0, 65));
-      list[i] = list[i].substring(65);
+  console.log(e.key);
+  if (e.key === "Backspace") {
+    currentBuffer.input = currentBuffer.input.substring(0, currentBuffer.input.length - 1)
+  }
+  if (e.key === "Enter" && currentBuffer.inputEnabled) {
+    currentBuffer.lines.push(currentBuffer.input);
+    let str = currentBuffer.input;
+    currentBuffer.input = "";
+    currentBuffer.parser(str);
+    if (currentBuffer.scroll + 18 < currentBuffer.lines.length) {
+      currentBuffer.scroll = currentBuffer.lines.length - 19;
     }
   }
-  commandLines.push("");
-  return lineIndex;
-}
+  if (e.key === "ArrowUp") {
+    if (e.shiftKey) {
+      for (let i = 0; i < 5; i++) {
+        if (currentBuffer.scroll > 0) {
+          currentBuffer.scroll--;
+        }
+      }
+    } else if (currentBuffer.scroll > 0) {
+      currentBuffer.scroll--;
+    }
+  }
+  if (e.key === "ArrowDown") {
+    if (e.shiftKey) {
+      for (let i = 0; i < 5; i++) {
+        if (currentBuffer.scroll < currentBuffer.lines.length) {
+          currentBuffer.scroll++;
+        }
+      }
+    } else if (currentBuffer.scroll < currentBuffer.lines.length) {
+      currentBuffer.scroll++;
+    }
+  }
+  if (e.key === "Escape") {
+    currentBuffer = commandBuffer;
+  }
+})
+

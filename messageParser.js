@@ -1,7 +1,7 @@
 let installable = ["thelasthope"];
 let installed = [];
 
-function parseMessage(str) {
+function commandParser(str) {
     let command = str.split(" ")[0];
     command = command.toLowerCase();
     if (command === "help") {
@@ -25,14 +25,14 @@ function parseMessage(str) {
             ]); 
             installed.push(str.split(" ")[1]);
             let count = 0;
-            userInputEnabled = false;
+            currentBuffer.inputEnabled = false;
             animationLoop = setInterval(() => {
                 if (count === 65) {
-                    lines[index+1] = "----------------------- Install Complete ------------------------";
-                    userInputEnabled = true;
+                    currentBuffer.lines[index+1] = "----------------------- Install Complete ------------------------";
+                    currentBuffer.inputEnabled = true;
                     clearInterval(animationLoop);
                 } else {
-                    lines[index+1] = lines[index+1] + "█"
+                    currentBuffer.lines[index+1] = currentBuffer.lines[index+1] + "█"
                     count++;
                 }
             }, 100);
@@ -56,13 +56,17 @@ function parseMessage(str) {
             "You can install it by running `install thelasthope`"
         ]);
     } else if (command === "cls") {
-        lines = [];
-        scrollcount = 0;
+        currentBuffer.lines = [];
+        currentBuffer.scroll = 0;
     } else if (command === "thelasthope" && installed.includes("thelasthope")) {
-        showDirectory = false;
+        currentBuffer = theLastHopeBuffer;
         
     } else if (command === "") {}
     else {
         respond([`'${command}' is not recognized as an internal or external command or operable program.`]);
     }
+}
+
+function messageParser(str) {
+    respond([str])
 }
