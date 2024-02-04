@@ -1,5 +1,4 @@
 let installable = ["thelasthope"];
-let installed = [];
 
 function commandParser(str) {
     let command = str.split(" ")[0];
@@ -18,12 +17,12 @@ function commandParser(str) {
             return
         }
 
-        if (installable.includes(str.split(" ")[1]) && !installed.includes(str.split(" ")[1])) {
+        if (installable.includes(str.split(" ")[1]) && !gameState.installed.includes(str.split(" ")[1])) {
             let index = respond([
                 `Installing program: ${str.split(" ")[1]}`,
                 "",
             ]); 
-            installed.push(str.split(" ")[1]);
+            gameState.installed.push(str.split(" ")[1]);
             let count = 0;
             currentBuffer.inputEnabled = false;
             animationLoop = setInterval(() => {
@@ -35,8 +34,8 @@ function commandParser(str) {
                     currentBuffer.lines[index+1] = currentBuffer.lines[index+1] + "█"
                     count++;
                 }
-            }, 100);
-        } else if (installed.includes(str.split(" ")[1])) {
+            }, 100); 
+        } else if (gameState.installed.includes(str.split(" ")[1])) {
             respond([
                 "Program is already installed."
             ]);
@@ -55,10 +54,13 @@ function commandParser(str) {
             "It's called The Last Hope.",
             "You can install it by running `install thelasthope`"
         ]);
+    } else if (command === "reset") {
+        gameState.autosave = false; 
+        localStorage.removeItem("autosave");
     } else if (command === "cls") {
         currentBuffer.lines = [];
         currentBuffer.scroll = 0;
-    } else if (command === "thelasthope" && installed.includes("thelasthope")) {
+    } else if (command === "thelasthope" && gameState.installed.includes("thelasthope")) {
         currentBuffer = theLastHopeBuffer;
         
     } else if (command === "") {}
@@ -68,5 +70,5 @@ function commandParser(str) {
 }
 
 function messageParser(str) {
-    respond([str])
+    respond([str]);
 }

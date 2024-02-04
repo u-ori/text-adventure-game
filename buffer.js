@@ -1,9 +1,10 @@
 class Buffer {
-    constructor(startingLines, parser) {
+    constructor(startingLines, inputPrefix, scroll, parser) {
         this.lines = startingLines;
         this.input = "";
+        this.inputPrefix= inputPrefix;
         this.inputEnabled = true;
-        this.scroll = 0;
+        this.scroll = scroll;
         this.parser = parser;
     }
 }

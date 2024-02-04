@@ -131,7 +131,7 @@ function renderWorld(delta) {
   for (let i = currentBuffer.scroll; i < currentBuffer.scroll + 20; i++) {
     if (currentBuffer.lines[i] === undefined) {
       if (once && currentBuffer.inputEnabled) {
-        bufferContext.fillText(currentBuffer.input, 10, 10 + (i - currentBuffer.scroll) * 12);
+        bufferContext.fillText(currentBuffer.inputPrefix+currentBuffer.input, 10, 10 + (i - currentBuffer.scroll) * 12);
         once = false;
       }
       continue
@@ -383,7 +383,7 @@ addEventListener("keydown", (e) => {
     currentBuffer.input = currentBuffer.input.substring(0, currentBuffer.input.length - 1)
   }
   if (e.key === "Enter" && currentBuffer.inputEnabled) {
-    currentBuffer.lines.push(currentBuffer.input);
+    currentBuffer.lines.push(currentBuffer.inputPrefix+currentBuffer.input);
     let str = currentBuffer.input;
     currentBuffer.input = "";
     currentBuffer.parser(str);
@@ -416,5 +416,6 @@ addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     currentBuffer = commandBuffer;
   }
+  autoSave();
 })
 
