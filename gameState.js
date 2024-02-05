@@ -1,3 +1,5 @@
+let autosave = JSON.parse(localStorage.getItem("autosave"));
+
 gameState = {
     installed: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).installed : [],
     autosave: true

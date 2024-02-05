@@ -1,3 +1,3 @@
 let debug = document.getElementById("debug");
 
-debug.innerText = localStorage.getItem("autosave");
+// debug.innerText = localStorage.getItem("saves");

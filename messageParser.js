@@ -54,9 +54,43 @@ function commandParser(str) {
             "It's called The Last Hope.",
             "You can install it by running `install thelasthope`"
         ]);
+    } else if (command === "save") {
+        let currentdate = new Date();
+        let saves = localStorage.getItem("saves") ? JSON.parse(localStorage.getItem("saves")) : [];
+        saves.push({
+            time: currentdate.getDate() + "/"
+            + (currentdate.getMonth()+1)  + "/" 
+            + currentdate.getFullYear() + " "  
+            + currentdate.getHours() + ":"  
+            + currentdate.getMinutes() + ":" 
+            + currentdate.getSeconds(),
+            id: saves.length,
+            commandBufferLines: commandBuffer.lines,
+            commandBufferScroll: commandBuffer.scroll,
+            gameBufferLines: theLastHopeBuffer.lines,
+            gameBufferScroll: theLastHopeBuffer.scroll,
+            installed: gameState.installed
+        });
+        localStorage.setItem("saves", JSON.stringify(saves));
+        respond(["Game saved at: "+ (currentdate.getDate() + "/" + (currentdate.getMonth()+1) + "/" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds())]);
     } else if (command === "reset") {
         gameState.autosave = false; 
         localStorage.removeItem("autosave");
+    } else if (command === "restore") {
+        if (str.split(" ")[1]) {
+            let save = JSON.parse(localStorage.getItem("saves"))[parseInt(str.split(" ")[1])];
+            commandBuffer.lines = save.commandBufferLines;
+            commandBuffer.scroll = save.commandBufferScroll;
+            theLastHopeBuffer.lines = save.gameBufferLines;
+            theLastHopeBuffer.scroll = save.gameBufferScroll;
+            gameState.installed = save.installed;
+        } else {
+            let e = [];
+            for (const save of JSON.parse(localStorage.getItem("saves"))) {
+                e.push(save.id+". "+save.time);
+            }
+            respond(e);
+        }
     } else if (command === "cls") {
         currentBuffer.lines = [];
         currentBuffer.scroll = 0;

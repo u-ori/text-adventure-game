@@ -138,7 +138,7 @@ function renderWorld(delta) {
     }
     bufferContext.fillText(currentBuffer.lines[i], 10, 10 + (i - currentBuffer.scroll) * 12);
   }
-  // bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
+  bufferContext.drawImage(document.getElementById("image"), 0, 0, 2119, 1414, 0, 0, 640, 480);
 
   trails.forEach((trail, index) => {
     const k = index / trails.length;
