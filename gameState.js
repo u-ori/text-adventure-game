@@ -4,7 +4,7 @@ gameState = {
     installed: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).installed : ["thelasthope"],
     autosave: true,
     inventory: [],
-    location: "startHome"
+    location: "startBedroom"
 }
 
 function autoSave() {

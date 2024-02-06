@@ -373,7 +373,6 @@ addEventListener("keypress", (e) => {
   if (e.key.length > 1) {
     return
   }
-  currentBuffer.image = undefined;
   currentBuffer.input = currentBuffer.input + e.key;
   if (currentBuffer.scroll + 19 < currentBuffer.lines.length - 1) {
     currentBuffer.scroll = currentBuffer.lines.length - 19;
@@ -417,7 +416,12 @@ addEventListener("keydown", (e) => {
     }
   }
   if (e.key === "Escape") {
-    currentBuffer = commandBuffer;
+    if (currentBuffer.image) {
+      currentBuffer.image = undefined;
+      currentBuffer.inputEnabled = true;
+    } else {
+      currentBuffer = commandBuffer;
+    }
   }
   autoSave();
 })

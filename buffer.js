@@ -27,4 +27,5 @@ function respond(list) {
 
 function showImage(str) {
     currentBuffer.image = str;
+    currentBuffer.inputEnabled = false;
 }

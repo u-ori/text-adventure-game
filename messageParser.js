@@ -104,8 +104,8 @@ function commandParser(str) {
 }
 
 function messageParser(str) {
-    if (gameState.location == "startHome") {
-        if (str.split(" ").includes("view")) {
+    if (gameState.location == "startBedroom") {
+        if (str.split(" ").includes("view") || (str.split(" ").includes("look") && str.split(" ").includes("around"))) {
             respond(["Juno looks around."]);
             showImage("startBedroom");
             return;
