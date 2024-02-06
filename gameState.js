@@ -1,8 +1,10 @@
 let autosave = JSON.parse(localStorage.getItem("autosave"));
 
 gameState = {
-    installed: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).installed : [],
-    autosave: true
+    installed: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).installed : ["thelasthope"],
+    autosave: true,
+    inventory: [],
+    location: "startHome"
 }
 
 function autoSave() {

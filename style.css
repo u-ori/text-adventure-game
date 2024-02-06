@@ -20,6 +20,7 @@ body {
     border-radius: 40px;
     box-shadow: 0 0 50px 50px #000;
     background: #000;
+    image-rendering: pixelated;
 }
 
 img {

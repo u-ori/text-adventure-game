@@ -76,6 +76,7 @@ function commandParser(str) {
     } else if (command === "reset") {
         gameState.autosave = false; 
         localStorage.removeItem("autosave");
+        location.reload();
     } else if (command === "restore") {
         if (str.split(" ")[1]) {
             let save = JSON.parse(localStorage.getItem("saves"))[parseInt(str.split(" ")[1])];
@@ -95,8 +96,7 @@ function commandParser(str) {
         currentBuffer.lines = [];
         currentBuffer.scroll = 0;
     } else if (command === "thelasthope" && gameState.installed.includes("thelasthope")) {
-        currentBuffer = theLastHopeBuffer;
-        
+        currentBuffer = theLastHopeBuffer;      
     } else if (command === "") {}
     else {
         respond([`'${command}' is not recognized as an internal or external command or operable program.`]);
@@ -104,5 +104,11 @@ function commandParser(str) {
 }
 
 function messageParser(str) {
-    respond([str]);
+    if (gameState.location == "startHome") {
+        if (str.split(" ").includes("view")) {
+            respond(["Juno looks around."]);
+            return;
+        }
+    }
+    respond(["Juno didn't understand you."])
 }

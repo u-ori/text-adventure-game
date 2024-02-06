@@ -2,7 +2,9 @@ let theLastHopeBuffer = new Buffer(
     autosave ? autosave.gameBufferLines : 
     ["[Press `Esc` to exit the game]",
     "",
-    "The protaganist wakes up in a",
+    "Juno wakes up in an abandoned home. There is barely any light. The ",
+    "door to bathroom is slightly open. The other door is locked. There ",
+    "is a computer in the middle of the room. ",
     ""], 
 
     "You: ", 
