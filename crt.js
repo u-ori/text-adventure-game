@@ -138,7 +138,9 @@ function renderWorld(delta) {
     }
     bufferContext.fillText(currentBuffer.lines[i], 10, 10 + (i - currentBuffer.scroll) * 12);
   }
-  // bufferContext.drawImage(document.getElementById("image"), 0, 0, 480, 260);
+  if (currentBuffer.image) {
+    bufferContext.drawImage(document.getElementById(currentBuffer.image), 0, 0, 480, 260);
+  }
 
   trails.forEach((trail, index) => {
     const k = index / trails.length;
@@ -371,6 +373,7 @@ addEventListener("keypress", (e) => {
   if (e.key.length > 1) {
     return
   }
+  currentBuffer.image = undefined;
   currentBuffer.input = currentBuffer.input + e.key;
   if (currentBuffer.scroll + 19 < currentBuffer.lines.length - 1) {
     currentBuffer.scroll = currentBuffer.lines.length - 19;

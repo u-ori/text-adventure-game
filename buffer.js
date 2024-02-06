@@ -6,6 +6,7 @@ class Buffer {
         this.inputEnabled = true;
         this.scroll = scroll;
         this.parser = parser;
+        this.image;
     }
 }
 
@@ -22,4 +23,8 @@ function respond(list) {
     }
     currentBuffer.lines.push("");
     return lineIndex;
+}
+
+function showImage(str) {
+    currentBuffer.image = str;
 }
