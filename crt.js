@@ -139,7 +139,7 @@ function renderWorld(delta) {
     bufferContext.fillText(currentBuffer.lines[i], 10, 10 + (i - currentBuffer.scroll) * 12);
   }
   if (currentBuffer.image) {
-    bufferContext.drawImage(document.getElementById(currentBuffer.image), 0, 0, 480, 260);
+    bufferContext.drawImage(document.getElementById(currentBuffer.image), 0, 0, 480, 240);
   }
 
   trails.forEach((trail, index) => {

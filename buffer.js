@@ -22,6 +22,7 @@ function respond(list) {
         }
     }
     currentBuffer.lines.push("");
+    autoSave();
     return lineIndex;
 }
 

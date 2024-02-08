@@ -1,14 +1,15 @@
 let autosave = JSON.parse(localStorage.getItem("autosave"));
 
-gameState = {
-    installed: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).installed : ["thelasthope"],
+game = {
+    installed: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).installed : [],
     autosave: true,
-    inventory: [],
-    location: "startBedroom"
+    inventory: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).inventory : [],
+    events: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).events : [],
+    location: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).location : "startBedroom"
 }
 
 function autoSave() {
-    if (!gameState.autosave) {
+    if (!game.autosave) {
         return;
     }
 
@@ -17,6 +18,9 @@ function autoSave() {
         commandBufferScroll: commandBuffer.scroll,
         gameBufferLines: theLastHopeBuffer.lines,
         gameBufferScroll: theLastHopeBuffer.scroll,
-        installed: gameState.installed
+        installed: game.installed,
+        inventory: game.inventory,
+        events: game.events,
+        location: game.location
     }));
 }
