@@ -214,12 +214,36 @@ function messageParser(str) {
             respond(["Juno tries to turn on the cracked television. It makes small spark. It could definitely start a fire if there was something flammable in it."]);
             return;
         }
-        if (str.split(" ").includes("fireplace")) {
-            respond(["Juno tosses the carpet that is on fire into the fireplace. The fireplace starts burning.p"]);
+        if (str.split(" ").includes("fireplace") && game.events.includes("madeFireCarpet")) {
+            if (game.events.includes("litFireplace")) {
+                respond(["Juno stares into the orb in the fireplace and the way the fire dances mesmirizes her."]);
+                return;
+            }
+            respond(["Juno tosses the carpet that is on fire into the fireplace. The fireplace is now lit. Although seconds later, the fire condenses into an orb."]);
+            game.events.push("litFireplace");
+            game.inventory.splice(game.inventory.indexOf("Carpet on fire"), 1);
             return;
         }
         if (str.split(" ").includes("fireplace")) {
             respond(["Juno looks at the fire place. She wants to light it for warmth."]);
+            return;
+        }
+        if (str.split(" ").includes("orb") && !game.events.includes("pickOrb")) {
+            respond(["Juno picks up the orb. The warmth of the light coming from it makes Juno not want to put it down."]);
+            game.events.push("pickOrb");
+            game.inventory.push("Orb of light");
+            return;
+        }
+        if (str.split(" ").includes("outside")) {
+            if (game.events.includes("burnDoor")) {
+                respond([""]);
+                return;
+            }
+            respond(["Juno attempts to open the door to the outside but the door is locked. It seems like Juno can burn away with a concentrated beam of light."]);
+            return;
+        }
+        if (str.split(" ").includes("door")) {
+            respond([""]);
             return;
         }
     }
