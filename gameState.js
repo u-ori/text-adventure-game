@@ -5,7 +5,18 @@ game = {
     autosave: true,
     inventory: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).inventory : [],
     events: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).events : [],
-    location: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).location : "startBedroom"
+    location: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).location : "startBedroom",
+    drive: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).drive : {
+        "Documents": {
+            type: "folder",
+            content: {}
+        },
+        // "text.txt": {
+        //     type: "file",
+        //     content: ["test\neee"]
+        // }
+    },
+    directory: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).directory : []
 }
 
 function autoSave() {
@@ -21,6 +32,8 @@ function autoSave() {
         installed: game.installed,
         inventory: game.inventory,
         events: game.events,
-        location: game.location
+        location: game.location,
+        drive: game.drive,
+        directory: game.directory,
     }));
 }

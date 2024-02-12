@@ -9,7 +9,9 @@ function commandParser(str) {
             "EMAIL   - Displays most recent email received",
             "HELP    - Shows all commands and how to use them.",
             "INSTALL - Installs the specified program.",
-            "TYPE    - Displays contents of a text file."
+            "READ    - Displays contents of a text file.",
+            "LS      - Lists files and directories in current directory.",
+            "CD      - Changes directory."
         ]);
     } else if (command === "install") {
         if (str.split(" ")[1] === undefined) {
@@ -44,8 +46,34 @@ function commandParser(str) {
                 "Cannot find the program in the registry."
             ]);
         }
-    } else if (command === "type") {
-        respond(["reading file: "+str.split(" ")[1]]);
+    } else if (command === "read") {
+        if (game.drive[str.split(" ")[1]]["type"] == "file") {
+            respond(game.drive[str.split(" ")[1]]["content"]);
+            return;
+        }
+        respond(["Can't find file."]);
+    } else if (command === "cd") {
+        let cDir = game.drive;
+        for (const f of game.directory) {
+            cDir = cDir[f]["content"];
+        }
+        if (Object.keys(cDir).includes(str.split(" ")[1]) && game.drive[str.split(" ")[1]].type == "folder") {
+            game.directory.push(str.split(" ")[1]);
+            respond(["Changed directory"]);
+            return;
+        }
+        if (str.split(" ")[1] === "../" && game.directory.length > 0) {
+            game.directory.pop();
+            respond(["Changed directory"]);
+            return;
+        }
+        respond(["Failed to change directory"]);
+    } else if (command === "ls") {
+        let cDir = game.drive;
+        for (const f of game.directory) {
+            cDir = cDir[f]["content"];
+        }
+        respond(Object.keys(cDir));
     } else if (command === "email") {
         respond([
             "From: Your friend",
@@ -102,183 +130,358 @@ function commandParser(str) {
         respond([`'${command}' is not recognized as an internal or external command or operable program.`, "Use the `help` command to view internal commands."]);
     }
 }
-
+let mostRecent;
 function messageParser(str) {
-    if (str.split(" ").includes("dip") && str.split(" ").includes("carpet") && str.split(" ").includes("alcohol") && game.events.includes("pickAlcohol") && game.events.includes("pickCarpet")) {
+    mostRecent = str;
+    if (w("dip") && w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet")) {
         respond(["Juno dips the piece of carpet into the bottle of alcohol."]);
-        game.inventory.splice(game.inventory.indexOf("Ripped carpet"), 1);
-        game.inventory.splice(game.inventory.indexOf("Bottle of Alcohol"), 1);
-        game.inventory.push("Flammable carpet");
-        game.events.push("madeFlammableCarpet");
+        ir("Ripped carpet");
+        ir("Bottle of Alcohol");
+        ia("Flammable carpet");
+        ea("madeFlammableCarpet");
         return;
     }
-    if (game.location == "startBedroom") {
-        if (game.events.includes("computerStart")) {
-            if (str.split(" ").includes("123456")) {
-                game.inventory.splice(game.inventory.indexOf("Note"), 1);
+    if (l("startBedroom")) {
+        if (e("computerStart")) {
+            if (w("123456")) {
+                ir("Note");
                 respond(["Juno hears the locked door open. It leads to the living room."])
                 currentBuffer = commandBuffer;
                 respond(["It's your mission to return Juno home."]);
-                game.events.splice(game.events.indexOf("computerStart"), 1);
-                game.inventory.splice(game.inventory.indexOf("Note"), 1);
-                game.events.push("computerStartDone");
+                er("computerStart");
+                ir("Note");
+                ea("computerStartDone");
             } else {
                 respond(["Password invalid."]);
-                game.events.splice(game.events.indexOf("computerStart"), 1);
+                er("computerStart");
             }
             return;
         }
-        if (str.split(" ").includes("computer")) {
-            if (game.events.includes("computerStartDone")) {
+        if (w("computer")) {
+            if (e("computerStartDone")) {
                 respond(["The computer has deactivated and can no longer be used."]);
                 return;
             }
-            if (game.inventory.includes("Note")) {
+            if (e("pickNote")) {
                 respond(["Enter the password: "]);
-                game.events.push("computerStart");
+                ea("computerStart");
                 return;
             }
             respond(["Juno attempts access the computer. The computer requires a code."]);
             return;
         }
-        if (str.split(" ").includes("go") && str.split(" ").includes("bathroom")) {
+        if (w("go") && w("bathroom")) {
             respond(["Juno walks into the bathroom. It's even darker than before."]);
-            game.location = "startBathroom";
+            lc("startBathroom");
             return;
         }
-        if (str.split(" ").includes("read") && str.split(" ").includes("note") && game.events.includes("pickNote")) {
+        if (w("read") && w("note") && e("pickNote")) {
             respond(["The note says: \"123456\""]);
             return;
         }
-        if (str.split(" ").includes("carpet")) {
-            if (game.events.includes("pickCarpet")) {
+        if (w("carpet")) {
+            if (e("pickCarpet")) {
                 respond(["Juno doesn't think she needs more carpet."])
                 return;
             }
-            game.inventory.push("Ripped carpet");
-            game.events.push("pickCarpet");
+            ia("Ripped carpet");
+            ea("pickCarpet");
             respond(["Juno picks up a piece of the ripped up carpet."]);
             return;
         }
-        if (str.split(" ").includes("go") && str.split(" ").includes("living") && game.events.includes("computerStartDone")) {
+        if (w("go") && w("living") && e("computerStartDone")) {
             respond(["Juno goes to the living room. There is a locked door. There is another door that leads to the kitchen. There is a unlit fireplace with a shattered television."])
-            game.location = "startLiving";
+            lc("startLiving");
             return;
         }
     }
-    if (game.location == "startBathroom") {
-        if (str.split(" ").includes("cabinet")) {
+    if (l("startBathroom")) {
+        if (w("cabinet")) {
             respond(["Juno looks into the cabinet. There is a note in there. Besides   the note the cabinet is empty."]);
-            game.events.push("openCabinet");
+            ea("openCabinet");
             return;
         }
-        if (str.split(" ").includes("go") && (str.split(" ").includes("back") || str.split(" ").includes("bedroom"))) {
+        if (w("go") && (w("back") || w("bedroom"))) {
             respond(["Juno walks back into the bedroom. Nothing changed."]);
-            game.location = "startBedroom";
+            lc("startBedroom");
             return;
         }
-        if (str.split(" ").includes("grab") && str.split(" ").includes("note") && game.events.includes("openCabinet")) {
-            if (game.events.includes("pickNote")) {
+        if (w("grab") && w("note") && e("openCabinet")) {
+            if (e("pickNote")) {
                 respond(["Juno already grabbed the note."]);
                 return;
             }
             respond(["Juno grabs note."]);
-            game.inventory.push("Note");
-            game.events.push("pickNote");
+            ia("Note");
+            ea("pickNote");
             return;
         }
-        if (str.split(" ").includes("read") && str.split(" ").includes("note") && game.events.includes("pickNote")) {
+        if (w("read") && w("note") && e("pickNote")) {
             respond(["Juno can't read it since it's too dark."]);
             return;
         }
     }
-    if (game.location == "startLiving") {
-        if (str.split(" ").includes("go") && str.split(" ").includes("bedroom")) {
+    if (l("startLiving")) {
+        if (w("go") && w("bedroom")) {
             respond(["Juno walks back into the bedroom. Nothing changed."]);
-            game.location = "startBedroom";
+            lc("startBedroom");
             return;
         }
-        if (str.split(" ").includes("go") && str.split(" ").includes("kitchen")) {
-            respond(["Juno walks into the kitchen."]);
-            game.location = "startKitchen";
+        if (w("go") && w("kitchen")) {
+            respond(["Juno walks into the kitchen. There is a fridge and a safe."]);
+            lc("startKitchen");
             return;
         }
-        if ((str.split(" ").includes("tv") || str.split(" ").includes("television")) && str.split(" ").includes("put") && str.split(" ").includes("carpet")) {
+        if ((w("tv") || w("television")) && w("put") && w("carpet")) {
             respond(["Juno puts the carpet into the television then attempts to turn it on. Carpet is now on fire. Juno takes it back out."]);
-            game.events.push("madeFireCarpet");
-            game.inventory.push("Carpet on fire");
-            game.inventory.splice(game.inventory.indexOf("Flammable carpet"), 1);
+            ea("madeFireCarpet");
+            ia("Carpet on fire");
+            ir("Flammable carpet");
             return;
         }
-        if (str.split(" ").includes("tv") || str.split(" ").includes("television")) {
+        if (w("tv") || w("television")) {
             respond(["Juno tries to turn on the cracked television. It makes small spark. It could definitely start a fire if there was something flammable in it."]);
             return;
         }
-        if (str.split(" ").includes("fireplace") && game.events.includes("madeFireCarpet")) {
-            if (game.events.includes("litFireplace")) {
+        if (w("fireplace") && e("madeFireCarpet")) {
+            if (e("litFireplace")) {
                 respond(["Juno stares into the orb in the fireplace and the way the fire dances mesmirizes her."]);
                 return;
             }
             respond(["Juno tosses the carpet that is on fire into the fireplace. The fireplace is now lit. Although seconds later, the fire condenses into an orb."]);
-            game.events.push("litFireplace");
-            game.inventory.splice(game.inventory.indexOf("Carpet on fire"), 1);
+            ea("litFireplace");
+            ir("Carpet on fire");
             return;
         }
-        if (str.split(" ").includes("fireplace")) {
+        if (w("fireplace")) {
             respond(["Juno looks at the fire place. She wants to light it for warmth."]);
             return;
         }
-        if (str.split(" ").includes("orb") && !game.events.includes("pickOrb")) {
+        if (w("orb") && !e("pickOrb")) {
             respond(["Juno picks up the orb. The warmth of the light coming from it makes Juno not want to put it down."]);
-            game.events.push("pickOrb");
-            game.inventory.push("Orb of light");
+            ea("pickOrb");
+            ia("Orb of light");
             return;
         }
-        if (str.split(" ").includes("outside")) {
-            if (game.events.includes("burnDoor")) {
-                respond([""]);
+        if (w("outside") || w("town")) {
+            if (e("town")) {
+                respond(["Juno heads back into the town."]);
+                lc("town");
+                return;
+            }
+            if (e("burnDoor")) {
+                respond(["Juno steps outside into the darkness. She sees a town nearby and a giant tower. There seems to be a lot of automatons that have shut down."]);
+                lc("startOutside");
                 return;
             }
             respond(["Juno attempts to open the door to the outside but the door is locked. It seems like Juno can burn away with a concentrated beam of light."]);
             return;
         }
-        if (str.split(" ").includes("door")) {
-            respond([""]);
+        if (w("door") && w("burn") && e("pickOrb")) {
+            respond(["Juno aims the orb at the door. A beam of light burns the lock off."]);
+            ea("burnDoor");
             return;
         }
     }
-    if (game.location == "startKitchen") {
-        if (str.split(" ").includes("go") && (str.split(" ").includes("back") || str.split(" ").includes("bedroom"))) {
-            respond(["Juno walks back into the living room. Nothing changed."]);
-            game.location = "startLiving";
+    if (l("startKitchen")) {
+        if (w("mask") && e("openSafe") && !e("pickMask")) {
+            respond("Juno grabs the mask.");
+            ia("Gas mask");
             return;
         }
-        if (str.split(" ").includes("fridge")) {
-            respond(["Juno opens the fridge. It surprisingliy empty beside a bottle of alcohol."]);
-            game.events.push("openFridge");
-            return;
-        }
-        if (str.split(" ").includes("alcohol") && game.events.includes("openFridge")) {
-            if (game.events.includes("pickAlcohol")) {
-                respond(["Juno doesn't understand you. Did you think there would be more?"]);
+        if (e("enterCombination")) {
+            er("enterCombination")
+            if (w(438753)) {
+                respond("The safe swings open. Inside there is a gas mask. Juno wonders how you knew the code, because she doesn't remember seeing it.")
+                ea("openSafe");
                 return;
             }
+            respond("Combination incorrect.");
+            return;
+        }
+        if (w("go") && (w("back") || w("bedroom"))) {
+            respond(["Juno walks back into the living room. Nothing changed."]);
+            lc("startLiving");
+            return;
+        }
+        if (w("fridge") && !e("openFridge")) {
+            respond(["Juno opens the fridge. It surprisingliy empty beside a bottle of alcohol."]);
+            ea("openFridge");
+            return;
+        }
+        if (w("alcohol") && e("openFridge") && !e("pickAlcohol")) {
             respond(["Juno picks up the bottle of alcohol."]);
-            game.events.push("pickAlcohol");
-            game.inventory.push("Bottle of alcohol");
+            ea("pickAlcohol");
+            ia("Bottle of alcohol");
+            return;
+        }
+        if (w("safe") && !e("openSafe")) {
+            if (e("computer2")) {
+                respond(["Enter the combination: "]);
+                ea("enterCombination")
+                return;
+            }
+            respond(["Juno walks over to the safe, but has no clue what the combination to it is."]);
             return;
         }
     }
-    if (str.split(" ").includes("view") || (str.split(" ").includes("look") && str.split(" ").includes("around"))) {
-        respond(["Juno looks around."]);
-        showImage(game.location);
-        return;
+    if (l("startOutside")) {
+        if (w("town")) {
+            respond(["Juno heads into the town. All of the doors are boarded up, besides one. She sees an automaton that is still active."]);
+            lc("town");
+            ea("town");
+            return;
+        }
     }
-    if (str.split(" ").includes("inventory")) {
+    if (l("town")) {
+        if (w("automaton") && !e("auto1")) {
+            respond(["Juno walks up to the automaton.", "",
+                "AUTOMATON: *stares into the light*", 
+                "AUTOMATON: The new sun has arrived as the prophecy foretold.",
+                "JUNO: What sun?",
+                "AUTOMATON: What you are holding is our new sun.",
+                "JUNO: What happened to the old sun.",
+                "AUTOMATON: The tower that you saw contained our sun, and... it kinda just went boom.",
+                "JUNO: Just like that?",
+                "AUTOMATON: Yep, just like that.",
+                "JUNO: Then why is everything ever so slightly bright and not complete darkness?",
+                "AUTOMATON: The land here is infused with Phosphor, and it's slowly releasing the energy that it saved from the previous sun.",
+                "JUNO: Where did everybody go?",
+                "AUTOMATON: Believe it or not most people don't want to live in a \"dead\" world, and promptly left in search of a new world.",
+                "JUNO: Well... how do I leave this world? I want to go back to my original world.",
+                "AUTOMATON: You will have go to The Tower as well.",
+                "JUNO: Who is this voice that's been guiding me?",
+                "AUTOMATON: That is The Guide. Its goal is to guide you to The Tower.",
+                "JUNO: Why are you the only automaton that didn't shut down.",
+                "AUTOMATON: Because my programming dictates to welcome the savior of this world and answer any questions they have.",
+                "JUNO: So you won't come with me?",
+                "AUTOMATON: No as I Have Not Been Freed.",
+                "JUNO: I don't have any more questions.",
+                "AUTOMATON: Understood.", "",
+                "The automaton shuts down for good."
+            ]);
+            ea("auto1");
+            return;
+        }
+        if (w("inside") || w("house")) {
+            lc("townInside");
+            if (!e("townHouse")) {
+                respond("Juno heads inside and finds another active automaton. She also sees what seems to be a deactivated generator. Right next to it is the same computer that was in the bedroom. The floor is covered in electronic components.");
+                ea("townHouse")
+                return;
+            }
+            respond("Juno walks back into the house.");
+            return;
+        }
+        if (w("home")) {
+            lc("startLiving");
+            respond("Juno walks back into the house.");
+            return;
+        }
+    }
+    if (l("townInside")) {
+        if (w("automaton") && !e("auto2")) {
+            respond(["Juno walks up to the automaton.", "",
+                "AUTOMATON: *stares into the light*", 
+                "AUTOMATON: So you are the \"Savior\"?",
+                "JUNO: Yes, yes I am.",
+                "AUTOMATON: Listen up \"Savior\" destroy the sun now.",
+                "JUNO: Why?",
+                "AUTOMATON: All of the people have already left. There is nothing left to be salvaged. Just let the world wither away naturally.",
+                "JUNO: Understood, but why are you still active?",
+                "AUTOMATON: My programming dictates to shut down every automaton after their purpose is fulfilled.",
+                "AUTOMATON: Although if you still want to go to The Tower, grab a gas mask as the next area (The Factories) is heavily polluted."
+            ]);
+            ea("auto2");
+            return;
+        }
+        if (w("computer")) {
+            if (e("computer2")) {
+                respond("The computer turned itself off.");
+                return;
+            }
+            if (e("turnGen")) {
+                respond(["Juno accesses the computer."]);
+                currentBuffer = commandBuffer;
+                respond(["I can see your loyalty in helping Juno return back home. The next area is deadly without a gas mask. Luckily, there is one inside the safe in the starting house. Unfortunately, the code for it no longer exists in the world. I had to pull it out as it started to get corrupted by The Null Zone. Just check your documents you will find it there."]);
+                game.drive["Documents"].content["safeCode.txt"] = {type: "file", content: ["438753"]}
+                ea("computer2");
+                return;
+            }
+            respond(["Juno looks at the deactivated computer. It seems like turning on the generator will turn the computer on."]);
+            return;
+        }
+        if ((w("gen") || w("generator")) && e("addPanelGen") && !e("turnGen")) {
+            respond(["Juno points The Sun at the solar panel and the generator spins to life. The computer turns on."]);
+            ea("turnGen");
+            return;
+        }
+        if ((w("gen") || w("generator")) && (w("solar") || w("panel")) && e("checkFloor")) {
+            respond(["Juno walks up to the generator and attaches the solar panel to it. Now it just needs light."]);
+            ea("addPanelGen");
+            ir("Solar panel");
+            return;
+        }
+        if ((w("gen") || w("generator")) && !e("turnGen")) {
+            respond(["Juno walks up to the generator. It seems like it's missing an energy source to start it."]);
+            return;
+        }
+        if (w("floor") && !e("checkFloor")) {
+            respond(["Juno checks the floor. Most of the components are damaged, and can't be used. She finds a gear and a solar panel."]);
+            ia("Gear");
+            ia("Solar panel");
+            ea("checkFloor");
+        }
+        if (w("outside") || w("back")) {
+            respond(["Juno walks back outside to the town center."]);
+            lc("town")
+        }
+    }
+    // if (w("view") || (w("look") && w("around"))) {
+    //     respond(["Juno looks around."]);
+    //     showImage(game.location);
+    //     return;
+    // }
+    if (w("inventory")) {
         respond(["Juno checks her pockets. She currently has:"]);
         respond(structuredClone(game.inventory));
 
         return;
     }
     respond(["Juno didn't understand you."])
+}
+
+function l(str) {
+    return game.location == str;
+}
+
+function w(str) {
+    return mostRecent.split(" ").includes(str);
+}
+
+function e(str) {
+    return game.events.includes(str);
+}
+function i(str) {
+    return game.inventory.includes(str);
+}
+
+function lc(str) {
+    game.location = str;
+}
+
+function ea(str) {
+    game.events.push(str);
+}
+
+function ia(str) {
+    game.inventory.push(str);
+}
+
+function ir(str) {
+    game.inventory.splice(game.inventory.indexOf("str"), 1);
+}
+
+function er(str) {
+    game.events.splice(game.events.indexOf("str"), 1);
 }
