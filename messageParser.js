@@ -375,7 +375,17 @@ function messageParser(str) {
         }
         if (w("home")) {
             lc("startLiving");
-            respond("Juno walks back into the house.");
+            respond("Juno walks back to her \"home\".");
+            return;
+        }
+        if (w("factories")) {
+            lc("factories");
+            if (!e("factories")) {
+                respond("Juno starts walking towards the factories. As she gets closer and closer, the air becomes less and less breathable. Eventually Juno arrives at the factories. Surprisingly, all of the building looks ransacked and destroyed. Looking past the ruins there is a port.");
+                ea("factories")
+                return;
+            }
+            respond("Juno walks back to the factories.");
             return;
         }
     }
@@ -437,6 +447,83 @@ function messageParser(str) {
             lc("town")
         }
     }
+    if (l("factories")) {
+        if (w("town")) {
+            respond("Juno walks back to the town.");
+            lc("town");
+            return;
+        }
+        if (w("port")) {
+            lc("port");
+            if (!e("port")) {
+                respond("Juno walks to the port past the factories. In the port there is one single boat, with an automaton with a bucket on it's head.");
+                ea("port")
+                return;
+            }
+            respond("Juno walks back to the port.");
+            return;
+        }
+        if ((w("ruins") || w("search"))&& !e("ruins")) {
+            respond("Juno inspects the ruins thoroughly. In the end, she finds a broken steam engine.");
+            ea("ruins");
+            ia("Broken steam engine");
+        }
+    }
+    if (l("port")) {
+        if (w("bucket")) {
+            respond(["Juno grabs the bucket of the automaton's head."]);
+            ia("Bucket");
+            return;
+        }
+        if (w("automaton") && !e("auto3")) {
+            respond(["Juno walks up to the edge of the port.", "",
+                "AUTOMATON: *stares into the light*", 
+                "AUTOMATON: Need a ride?",
+                "JUNO: Yeah!",
+                "AUTOMATON: Where do you want to go?",
+                "JUNO: To the tower.",
+                "AUTOMATON: *attempts to start the boat*",
+                "AUTOMATON: Unfortunately, the boat is missing an engine and can't go anywhere.",
+                "JUNO: Okay... so... I need to find a engine for you?",
+                "AUTOMATON: *Doesn't respond as it hasn't been freed.*"
+            ]);
+            ea("auto3");
+            return;
+        }
+        if (w("engine") && e("ruins")&& !e("installBrokenEngine")) {
+            respond(["Juno gets into the boat to install the broken steam engine.", "", 
+                "AUTOMATON: *Scans engine.*",
+                "AUTOMATON: ENGINE DIAGNOSTIC COMPLETE. The engine is missing a gear."
+            ]);
+            ir("Broken steam engine")
+            ea("installBrokenEngine");
+            return;
+        }
+        if (w("gear") && e("installBrokenEngine")) {
+            respond(["Juno give the gear to the automaton.", "", 
+                "AUTOMATON: *Places gear in place*",
+                "AUTOMATON: *Scans engine.*",
+                "AUTOMATON: ENGINE DIAGNOSTIC COMPLETE. The engine is missing water and heat source."
+            ]);
+            ir("Gear");
+            ea("fixEngine");
+            return;
+        }
+        if ((w("sun") || w("light") || w("orb") && e("fixEngine") && !e("heatEngine"))) {
+            respond(["Juno puts the orb into the engine."]);
+            ir("Orb of light");
+            ea("heatEngine");
+            isEngineFixed();
+            return;
+        }
+        if ((w("pour") || w("water")) && e("fixEngine") ) {
+            respond(["Juno pours the water into the engine."]);
+            ir("Bucket of water");
+            ea("waterEngine");
+            isEngineFixed();
+            return;
+        }
+    }
     // if (w("view") || (w("look") && w("around"))) {
     //     respond(["Juno looks around."]);
     //     showImage(game.location);
@@ -449,6 +536,16 @@ function messageParser(str) {
         return;
     }
     respond(["Juno didn't understand you."])
+}
+
+function isEngineFixed() {
+    if (e("waterEngine") && e("heatEngine")) {
+        respond([
+            "AUTOMATON: *Scans engine.*",
+            "AUTOMATON: ENGINE DIAGNOSTIC COMPLETE. The engine is fully functional."
+        ]);
+        return;
+    }
 }
 
 function l(str) {
