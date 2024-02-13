@@ -532,10 +532,9 @@ function messageParser(str) {
     if (w("inventory")) {
         respond(["Juno checks her pockets. She currently has:"]);
         respond(structuredClone(game.inventory));
-
         return;
     }
-    respond(["Juno didn't understand you."])
+    respond(["Juno didn't understand you."]);
 }
 
 function isEngineFixed() {
