@@ -174,15 +174,20 @@ function commandParser(str) {
 }
 let mostRecent;
 function messageParser(str) {
-    mostRecent = str;
+    var punctuation = /[\.,?!]/g;
+    var newText = str.replace(punctuation, "");
+    mostRecent = newText.toLowerCase();
+
     if (e("died")) {
         respond(["Juno is dead."]);
+        return;
     }
     if (e("won")) {
         respond(["Credits:", "everything: me"]);
+        return;
     }
  
-    if (w("dip") && w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet")) {
+    if (w("dip") && w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet") && !e("madeFlammableCarpet")) {
         respond(["Juno dips the piece of carpet into the bottle of alcohol."]);
         ir("Ripped carpet");
         ir("Bottle of Alcohol");
@@ -220,7 +225,7 @@ function messageParser(str) {
             return;
         }
         if (w("go") && w("bathroom")) {
-            respond(["Juno walks into the bathroom. It's even darker than before."]);
+            respond(["Juno walks into the bathroom. It's even darker than before. None of the water sources work. Even with how dark it is Juno sees a cabinet."]);
             lc("startBathroom");
             return;
         }
@@ -335,6 +340,7 @@ function messageParser(str) {
     if (l("startKitchen")) {
         if (w("mask") && e("openSafe") && !e("pickMask")) {
             respond(["Juno grabs the mask."]);
+            ea("pickMask");
             ia("Gas mask");
             return;
         }
@@ -412,6 +418,11 @@ function messageParser(str) {
             ea("auto1");
             return;
         }
+        if (e("auto1") && w("core") && !e("pickCore1")) {
+            respond(["Juno takes the automaton's core."]);
+            ia("Automaton core");
+            ea("pickCore1");
+        }
         if (w("inside") || w("house")) {
             lc("townInside");
             if (!e("townHouse")) {
@@ -427,7 +438,7 @@ function messageParser(str) {
             respond(["Juno walks back to her \"home\"."]);
             return;
         }
-        if (w("factories")) {
+        if (w("factories") && e("pickMask")) {
             lc("factories");
             if (!e("factories")) {
                 respond(["Juno starts walking towards the factories. As she gets closer and closer, the air becomes less and less breathable. Eventually Juno arrives at the factories. Surprisingly, all of the building looks ransacked and destroyed. Looking past the ruins there is a port."]);
@@ -454,6 +465,11 @@ function messageParser(str) {
             ea("auto2");
             return;
         }
+        if (e("auto2") && w("core") && !e("pickCore2")) {
+            respond(["Juno takes the automaton's core."]);
+            ia("Automaton core");
+            ea("pickCore2");
+        }
         if (w("computer")) {
             if (e("computer2")) {
                 respond(["The computer turned itself off."]);
@@ -470,7 +486,7 @@ function messageParser(str) {
             respond(["Juno looks at the deactivated computer. It seems like turning on the generator will turn the computer on."]);
             return;
         }
-        if ((w("gen") || w("generator")) && e("addPanelGen") && !e("turnGen")) {
+        if ((w("gen") || w("generator") || w("orb") || w("sun") || w("shine") || w("point")) && e("addPanelGen") && !e("turnGen")) {
             respond(["Juno points The Sun at the solar panel and the generator spins to life. The computer turns on."]);
             ea("turnGen");
             return;
@@ -490,10 +506,12 @@ function messageParser(str) {
             ia("Gear");
             ia("Solar panel");
             ea("checkFloor");
+            return;
         }
         if (w("outside") || w("back")) {
             respond(["Juno walks back outside to the town center."]);
-            lc("town")
+            lc("town");
+            return;
         }
     }
     if (l("factories")) {
@@ -505,7 +523,7 @@ function messageParser(str) {
         if (w("port")) {
             lc("port");
             if (!e("port")) {
-                respond(["Juno walks to the port past the factories. In the port there is one single boat, with an automaton with a bucket on it's head."]);
+                respond(["Juno walks to the port past the factories. In the port there is only one boat, with an automaton with a bucket on it's head."]);
                 ea("port")
                 return;
             }
@@ -516,10 +534,18 @@ function messageParser(str) {
             respond(["Juno inspects the ruins thoroughly. In the end, she finds a broken steam engine."]);
             ea("ruins");
             ia("Broken steam engine");
+            return;
         }
     }
     if (l("port")) {
-        if (w("water") && !e("fixEngine")) {
+        if ((w("pour") || w("water")) && e("fixEngine") && e("pickWater") && !e("waterEngine")) {
+            respond(["Juno pours the water into the engine."]);
+            ir("Bucket of water");
+            ea("waterEngine");
+            isEngineFixed();
+            return;
+        }
+        if (w("water") && !e("fixBoat")) {
             if (e("pickBucket") && !e("pickWater")) {
                 ir("Bucket");
                 ea("pickWater");
@@ -589,13 +615,7 @@ function messageParser(str) {
             isEngineFixed();
             return;
         }
-        if ((w("pour") || w("water")) && e("fixEngine") ) {
-            respond(["Juno pours the water into the engine."]);
-            ir("Bucket of water");
-            ea("waterEngine");
-            isEngineFixed();
-            return;
-        }
+        
         if ((w("get") || w("hop") || w("boat") && e("fixBoat"))) {
             respond([
                 "Juno hops into the boat.", "",
@@ -624,12 +644,18 @@ function messageParser(str) {
         return;
     }
     if (l("entrance")) {
+        if (w("core") && !e("pickCore3")) {
+            respond(["Juno takes the automaton's core."]);
+            ia("Automaton core");
+            ea("pickCore3");
+        }
         if (w("sign")) {
             respond(["Juno reads the sign. Written on it is: \"Welcome to Sanctuary\""]);
             return;
         }
         if ((w("door") || w("doors") || w("inside") || w("sanctuary") || w("tower"))) {
-            respond(["Juno attempts to open the doors, but they're locked.", "",
+            if (e("pickCore1") && e("pickCore2") && e("pickCore3")) {
+                respond(["Juno attempts to open the doors, but they're locked.", "",
                 "UNKNOWN: WHO'S THERE?",
                 "JUNO: I... am.. Juno.",
                 "UNKNOWN: WHAT'S YOUR PURPOSE OF BEING HERE?",
@@ -654,11 +680,52 @@ function messageParser(str) {
                 "KAMI: You needed motivation.",
                 "JUNO: Who is The Guide?",
                 "KAMI: The Guide was designed to make sure your objective would be completed. Even they don't know what their purpose is.",
+                "JUNO: Will the guide stay?",
+                "KAMI: Probably not, but we could try to clone them.",
+                "JUNO: How?",
+                "KAMI: We could put a part of their consciousness into an automaton core, but one wont be enough. We most likely need 3 of them.",
+                "",
                 "KAMI: Anyways... enough chit-chat. Take the lift to the top and restore the desolate world.", "", 
-                "Juno runs to the lift and ascends to the top. Juno places the sun where the shattered one was, and unplugs the computer, and plugging herself into it.",
-                "The New Sun starts shining brighter and brighter until the whole planet is revived.",
+                "Juno and Kami run to the lift and ascends to the top. Juno places the sun where the shattered one was. Kami starts the consciousness fusion process, while Juno plugs herself into the role of The Origin.",
+                "The New Sun starts shining brighter and brighter until the whole planet is revived. With you in the system it makes the cycle of samsara stop.",
                 "",
             ]);
+            } else {
+                respond(["Juno attempts to open the doors, but they're locked.", "",
+                    "UNKNOWN: WHO'S THERE?",
+                    "JUNO: I... am.. Juno.",
+                    "UNKNOWN: WHAT'S YOUR PURPOSE OF BEING HERE?",
+                    "JUNO: I'm here.. to restore.. the sun.",
+                    "UNKNOWN: *Opens the slit in the door and quickly closes it*",
+                    "UNKNOWN: OKAY, COME IN.", "",
+                    "Juno goes inside the tower.", "",
+                    "UNKNOWN: You can call me: \"Kami\"",
+                    "JUNO: What happened to this world?",
+                    "KAMI: The sun exploded.",
+                    "JUNO: Yeah, I know that, but why did it blow up.",
+                    "KAMI: The sun had a protector called: \"The Origin\". It purpose was to insure stability in the simulation by removing bugs. Unfortunatly, when the sun got infected, he wasn't able to save it due to it not being freed.",
+                    "JUNO: What does it mean to be \"Freed\"?",
+                    "KAMI: Freedom refers to how much access an entity possesses. Basic automatons have the lowest only allowing for their programming and nothing else. The Origin had the second highest allowing for free thinking and simulation manipulation of lower levels of freedom. Since the sun had the highest level, The Origin wasn't able to fix it.",
+                    "JUNO: What happened to The Origin?",
+                    "KAMI: It itself got corrupted, and wanted for the world to perish.",
+                    "JUNO: Who am I?",
+                    "KAMI: You are going to replace The Origin as the new guardian.",
+                    "JUNO: What about my original world?",
+                    "KAMI: Original world? Oh yeah.. I forgot to tell you that you share memories of the original sun, so the original world you are referring to is auctually the old world.",
+                    "JUNO: Why?",
+                    "KAMI: You needed motivation.",
+                    "JUNO: Who is The Guide?",
+                    "KAMI: The Guide was designed to make sure your objective would be completed. Even they don't know what their purpose is.",
+                    "JUNO: Will the guide stay?",
+                    "KAMI: Probably not, but we could try to clone them.",
+                    "JUNO: How?",
+                    "KAMI: We could put a part of their consciousness into an automaton core, but one wont be enough. We most likely need 3 of them.", "",
+                    "KAMI: Anyways... enough chit-chat. Take the lift to the top and restore the desolate world.", "", 
+                    "Juno runs to the lift and ascends to the top. Juno places the sun where the shattered one was, and Juno plugs herself in as role of The Origin.",
+                    "The New Sun starts shining brighter and brighter until the whole planet is revived.",
+                    "",
+                ]);
+            }
             ea("won");
             return;
         }
