@@ -187,7 +187,7 @@ function messageParser(str) {
         return;
     }
  
-    if (w("dip") && w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet") && !e("madeFlammableCarpet")) {
+    if (w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet") && !e("madeFlammableCarpet")) {
         respond(["Juno dips the piece of carpet into the bottle of alcohol."]);
         ir("Ripped carpet");
         ir("Bottle of Alcohol");
@@ -224,12 +224,12 @@ function messageParser(str) {
             respond(["Juno attempts access the computer. The computer requires a code."]);
             return;
         }
-        if (w("go") && w("bathroom")) {
+        if (w("bathroom")) {
             respond(["Juno walks into the bathroom. It's even darker than before. None of the water sources work. Even with how dark it is Juno sees a cabinet."]);
             lc("startBathroom");
             return;
         }
-        if (w("read") && w("note") && e("pickNote")) {
+        if ((w("read") || w("note")) && e("pickNote")) {
             respond(["The note says: \"123456\""]);
             return;
         }
@@ -243,7 +243,7 @@ function messageParser(str) {
             respond(["Juno picks up a piece of the ripped up carpet."]);
             return;
         }
-        if (w("go") && w("living") && e("computerStartDone")) {
+        if ((w("go") || w("living")) && e("computerStartDone")) {
             respond(["Juno goes to the living room. There is a locked door. There is another door that leads to the kitchen. There is a unlit fireplace with a shattered television."])
             lc("startLiving");
             return;
@@ -255,12 +255,12 @@ function messageParser(str) {
             ea("openCabinet");
             return;
         }
-        if (w("go") && (w("back") || w("bedroom"))) {
+        if (w("back") || w("bedroom")) {
             respond(["Juno walks back into the bedroom. Nothing changed."]);
             lc("startBedroom");
             return;
         }
-        if (w("grab") && w("note") && e("openCabinet")) {
+        if ((w("grab") || w("note")) && e("openCabinet")) {
             if (e("pickNote")) {
                 respond(["Juno already grabbed the note."]);
                 return;
@@ -270,18 +270,18 @@ function messageParser(str) {
             ea("pickNote");
             return;
         }
-        if (w("read") && w("note") && e("pickNote")) {
+        if ((w("read") || w("note")) && e("pickNote")) {
             respond(["Juno can't read it since it's too dark."]);
             return;
         }
     }
     if (l("startLiving")) {
-        if (w("go") && w("bedroom")) {
+        if (w("bedroom")) {
             respond(["Juno walks back into the bedroom. Nothing changed."]);
             lc("startBedroom");
             return;
         }
-        if (w("go") && w("kitchen")) {
+        if (w("kitchen")) {
             respond(["Juno walks into the kitchen. There is a fridge and a safe."]);
             lc("startKitchen");
             return;
@@ -354,7 +354,7 @@ function messageParser(str) {
             respond(["Combination incorrect."]);
             return;
         }
-        if (w("go") && (w("back") || w("bedroom"))) {
+        if (w("back") || w("bedroom")) {
             respond(["Juno walks back into the living room. Nothing changed."]);
             lc("startLiving");
             return;
