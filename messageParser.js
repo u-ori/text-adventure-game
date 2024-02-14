@@ -11,7 +11,9 @@ function commandParser(str) {
             "INSTALL - Installs the specified program.",
             "READ    - Displays contents of a text file.",
             "LS      - Lists files and directories in current directory.",
-            "CD      - Changes directory."
+            "CD      - Changes directory.",
+            "MV      - Moves file to a diffrent directory.",
+            "RESET   - Factory resets the computer."
         ]);
     } else if (command === "install") {
         if (str.split(" ")[1] === undefined) {
@@ -112,57 +114,58 @@ function commandParser(str) {
             "You can install it by running `install thelasthope`"
         ]);
     } else if (command === "save") {
-        let currentdate = new Date();
-        let saves = localStorage.getItem("saves") ? JSON.parse(localStorage.getItem("saves")) : [];
-        saves.push({
-            time: currentdate.getDate() + "/"
-            + (currentdate.getMonth()+1)  + "/" 
-            + currentdate.getFullYear() + " "  
-            + currentdate.getHours() + ":"  
-            + currentdate.getMinutes() + ":" 
-            + currentdate.getSeconds(),
-            id: saves.length,
-            commandBufferLines: commandBuffer.lines,
-            commandBufferScroll: commandBuffer.scroll,
-            gameBufferLines: theLastHopeBuffer.lines,
-            gameBufferScroll: theLastHopeBuffer.scroll,
-            installed: game.installed
-        });
-        localStorage.setItem("saves", JSON.stringify(saves));
-        respond(["Game saved at: "+ (currentdate.getDate() + "/" + (currentdate.getMonth()+1) + "/" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds())]);
+        // let currentdate = new Date();
+        // let saves = localStorage.getItem("saves") ? JSON.parse(localStorage.getItem("saves")) : [];
+        // saves.push({
+        //     time: currentdate.getDate() + "/"
+        //     + (currentdate.getMonth()+1)  + "/" 
+        //     + currentdate.getFullYear() + " "  
+        //     + currentdate.getHours() + ":"  
+        //     + currentdate.getMinutes() + ":" 
+        //     + currentdate.getSeconds(),
+        //     id: saves.length,
+        //     commandBufferLines: commandBuffer.lines,
+        //     commandBufferScroll: commandBuffer.scroll,
+        //     gameBufferLines: theLastHopeBuffer.lines,
+        //     gameBufferScroll: theLastHopeBuffer.scroll,
+        //     installed: game.installed
+        // });
+        // localStorage.setItem("saves", JSON.stringify(saves));
+        // respond(["Game saved at: "+ (currentdate.getDate() + "/" + (currentdate.getMonth()+1) + "/" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds())]);
     } else if (command === "reset") {
         game.autosave = false; 
         localStorage.removeItem("autosave");
         location.reload();
     } else if (command === "restore") {
-        if (str.split(" ")[1]) {
-            let save = JSON.parse(localStorage.getItem("saves"))[parseInt(str.split(" ")[1])];
-            commandBuffer.lines = save.commandBufferLines;
-            commandBuffer.scroll = save.commandBufferScroll;
-            theLastHopeBuffer.lines = save.gameBufferLines;
-            theLastHopeBuffer.scroll = save.gameBufferScroll;
-            game.installed = save.installed;
-        } else {
-            let e = [];
-            for (const save of JSON.parse(localStorage.getItem("saves"))) {
-                e.push(save.id+". "+save.time);
-            }
-            respond(e);
-        }
+        // if (str.split(" ")[1]) {
+        //     let save = JSON.parse(localStorage.getItem("saves"))[parseInt(str.split(" ")[1])];
+        //     commandBuffer.lines = save.commandBufferLines;
+        //     commandBuffer.scroll = save.commandBufferScroll;
+        //     theLastHopeBuffer.lines = save.gameBufferLines;
+        //     theLastHopeBuffer.scroll = save.gameBufferScroll;
+        //     game.installed = save.installed;
+        // } else {
+        //     let e = [];
+        //     for (const save of JSON.parse(localStorage.getItem("saves"))) {
+        //         e.push(save.id+". "+save.time);
+        //     }
+        //     respond(e);
+        // }
     } else if (command === "cls") {
         currentBuffer.lines = [];
         currentBuffer.scroll = 0;
     } else if (command === "thelasthope" && game.installed.includes("thelasthope")) {
         currentBuffer = theLastHopeBuffer;
-        if (Object.keys(game.drive["theLastHope"].content).includes("juno.char")) {
+        if (Object.keys(game.drive["theLastHope"].content).includes("juno.char") && !e("files1")) {
             lc("entrance");
             respond(["After wandering the abyss for what seems like an eternity, Juno blinks and is back on the boat.", "",
-            "AUTOMATON: Getting sea sick?",
-            "JUNO: No... I just had a nightmare.",
-            "AUTOMATON: That's good to hear. This voyage is coming to an end.", "",
-            "As soon as the boat reached the tower's port, Juno got off."
+                "AUTOMATON: Getting sea sick?",
+                "JUNO: No... I just had a nightmare.",
+                "AUTOMATON: That's good to hear. Luckily, this voyage is coming to an end.", "",
+                "As soon as the boat reached the tower's port, Juno gets off. Looking around Juno sees the entrance to the tower, with a sign next to it."
 
-        ]);
+            ]);
+            e("files1");
         }
     } else if (command === "") {}
     else {
@@ -172,10 +175,13 @@ function commandParser(str) {
 let mostRecent;
 function messageParser(str) {
     mostRecent = str;
-    if (e("sleep") && !w("awake")) {
-        
-        return;
+    if (e("died")) {
+        respond(["Juno is dead."]);
     }
+    if (e("won")) {
+        respond(["Credits:", "everything: me"]);
+    }
+ 
     if (w("dip") && w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet")) {
         respond(["Juno dips the piece of carpet into the bottle of alcohol."]);
         ir("Ripped carpet");
@@ -328,18 +334,18 @@ function messageParser(str) {
     }
     if (l("startKitchen")) {
         if (w("mask") && e("openSafe") && !e("pickMask")) {
-            respond("Juno grabs the mask.");
+            respond(["Juno grabs the mask."]);
             ia("Gas mask");
             return;
         }
         if (e("enterCombination")) {
             er("enterCombination")
-            if (w(438753)) {
-                respond("The safe swings open. Inside there is a gas mask. Juno wonders how you knew the code, because she doesn't remember seeing it.")
+            if (w("438753")) {
+                respond(["The safe swings open. Inside there is a gas mask. Juno wonders how you knew the code, because she doesn't remember seeing it."])
                 ea("openSafe");
                 return;
             }
-            respond("Combination incorrect.");
+            respond(["Combination incorrect."]);
             return;
         }
         if (w("go") && (w("back") || w("bedroom"))) {
@@ -393,7 +399,7 @@ function messageParser(str) {
                 "AUTOMATON: Believe it or not most people don't want to live in a \"dead\" world, and promptly left in search of a new world.",
                 "JUNO: Well... how do I leave this world? I want to go back to my original world.",
                 "AUTOMATON: You will have go to The Tower as well.",
-                "JUNO: Who is this voice that's been guiding me?",
+                "JUNO: And who is this voice that's been guiding me?",
                 "AUTOMATON: That is The Guide. Its goal is to guide you to The Tower.",
                 "JUNO: Why are you the only automaton that didn't shut down.",
                 "AUTOMATON: Because my programming dictates to welcome the savior of this world and answer any questions they have.",
@@ -409,26 +415,26 @@ function messageParser(str) {
         if (w("inside") || w("house")) {
             lc("townInside");
             if (!e("townHouse")) {
-                respond("Juno heads inside and finds another active automaton. She also sees what seems to be a deactivated generator. Right next to it is the same computer that was in the bedroom. The floor is covered in electronic components.");
+                respond(["Juno heads inside and finds another active automaton. She also sees what seems to be a deactivated generator. Right next to it is the same computer that was in the bedroom. The floor is covered in electronic components."]);
                 ea("townHouse")
                 return;
             }
-            respond("Juno walks back into the house.");
+            respond(["Juno walks back into the house."]);
             return;
         }
         if (w("home")) {
             lc("startLiving");
-            respond("Juno walks back to her \"home\".");
+            respond(["Juno walks back to her \"home\"."]);
             return;
         }
         if (w("factories")) {
             lc("factories");
             if (!e("factories")) {
-                respond("Juno starts walking towards the factories. As she gets closer and closer, the air becomes less and less breathable. Eventually Juno arrives at the factories. Surprisingly, all of the building looks ransacked and destroyed. Looking past the ruins there is a port.");
+                respond(["Juno starts walking towards the factories. As she gets closer and closer, the air becomes less and less breathable. Eventually Juno arrives at the factories. Surprisingly, all of the building looks ransacked and destroyed. Looking past the ruins there is a port."]);
                 ea("factories")
                 return;
             }
-            respond("Juno walks back to the factories.");
+            respond(["Juno walks back to the factories."]);
             return;
         }
     }
@@ -438,7 +444,7 @@ function messageParser(str) {
                 "AUTOMATON: *stares into the light*", 
                 "AUTOMATON: So you are the \"Savior\"?",
                 "JUNO: Yes, yes I am.",
-                "AUTOMATON: Listen up \"Savior\" destroy the sun now.",
+                "AUTOMATON: Listen up \"Savior\", destroy the sun now.",
                 "JUNO: Why?",
                 "AUTOMATON: All of the people have already left. There is nothing left to be salvaged. Just let the world wither away naturally.",
                 "JUNO: Understood, but why are you still active?",
@@ -450,13 +456,13 @@ function messageParser(str) {
         }
         if (w("computer")) {
             if (e("computer2")) {
-                respond("The computer turned itself off.");
+                respond(["The computer turned itself off."]);
                 return;
             }
             if (e("turnGen")) {
                 respond(["Juno accesses the computer."]);
                 currentBuffer = commandBuffer;
-                respond(["I can see your loyalty in helping Juno return back home. The next area is deadly without a gas mask. Luckily, there is one inside the safe in the starting house. Unfortunately, the code for it no longer exists in the world. I had to pull it out as it started to get corrupted by The Null Zone. Just check your documents you will find it there."]);
+                respond(["I can see your loyalty in helping Juno return back home. The next area is deadly without a gas mask. Luckily, there is one inside the safe in the starting house. Unfortunately, the code for it no longer exists in the world. I had to pull it out as it started to get corrupted. Just check your documents you will find it there."]);
                 game.drive["Documents"].content["safeCode.txt"] = {type: "file", content: ["438753"], readable: true}
                 ea("computer2");
                 return;
@@ -492,28 +498,40 @@ function messageParser(str) {
     }
     if (l("factories")) {
         if (w("town")) {
-            respond("Juno walks back to the town.");
+            respond(["Juno walks back to the town."]);
             lc("town");
             return;
         }
         if (w("port")) {
             lc("port");
             if (!e("port")) {
-                respond("Juno walks to the port past the factories. In the port there is one single boat, with an automaton with a bucket on it's head.");
+                respond(["Juno walks to the port past the factories. In the port there is one single boat, with an automaton with a bucket on it's head."]);
                 ea("port")
                 return;
             }
-            respond("Juno walks back to the port.");
+            respond(["Juno walks back to the port."]);
             return;
         }
         if ((w("ruins") || w("search"))&& !e("ruins")) {
-            respond("Juno inspects the ruins thoroughly. In the end, she finds a broken steam engine.");
+            respond(["Juno inspects the ruins thoroughly. In the end, she finds a broken steam engine."]);
             ea("ruins");
             ia("Broken steam engine");
         }
     }
     if (l("port")) {
-        if (w("bucket")) {
+        if (w("water") && !e("fixEngine")) {
+            if (e("pickBucket") && !e("pickWater")) {
+                ir("Bucket");
+                ea("pickWater");
+                ia("Bucket of water");
+                respond(["Juno gathers water into the bucket."]);
+                return;
+            }
+            respond(["Juno falls into the water and drowns."]);
+            ea("died");
+            return;
+        }
+        if (w("bucket") && !e("pickBucket")) {
             respond(["Juno grabs the bucket of the automaton's head."]);
             ia("Bucket");
             ea("pickBucket")
@@ -604,6 +622,46 @@ function messageParser(str) {
     if (l("abyss")) {
         respond(["Juno can't hear you."]);
         return;
+    }
+    if (l("entrance")) {
+        if (w("sign")) {
+            respond(["Juno reads the sign. Written on it is: \"Welcome to Sanctuary\""]);
+            return;
+        }
+        if ((w("door") || w("doors") || w("inside") || w("sanctuary") || w("tower"))) {
+            respond(["Juno attempts to open the doors, but they're locked.", "",
+                "UNKNOWN: WHO'S THERE?",
+                "JUNO: I... am.. Juno.",
+                "UNKNOWN: WHAT'S YOUR PURPOSE OF BEING HERE?",
+                "JUNO: I'm here.. to restore.. the sun.",
+                "UNKNOWN: *Opens the slit in the door and quickly closes it*",
+                "UNKNOWN: OKAY, COME IN.", "",
+                "Juno goes inside the tower.", "",
+                "UNKNOWN: You can call me: \"Kami\"",
+                "JUNO: What happened to this world?",
+                "KAMI: The sun exploded.",
+                "JUNO: Yeah, I know that, but why did it blow up.",
+                "KAMI: The sun had a protector called: \"The Origin\". It purpose was to insure stability in the simulation by removing bugs. Unfortunatly, when the sun got infected, he wasn't able to save it due to it not being freed.",
+                "JUNO: What does it mean to be \"Freed\"?",
+                "KAMI: Freedom refers to how much access an entity possesses. Basic automatons have the lowest only allowing for their programming and nothing else. The Origin had the second highest allowing for free thinking and simulation manipulation of lower levels of freedom. Since the sun had the highest level, The Origin wasn't able to fix it.",
+                "JUNO: What happened to The Origin?",
+                "KAMI: It itself got corrupted, and wanted for the world to perish.",
+                "JUNO: Who am I?",
+                "KAMI: You are going to replace The Origin as the new guardian.",
+                "JUNO: What about my original world?",
+                "KAMI: Original world? Oh yeah.. I forgot to tell you that you share memories of the original sun, so the original world you are referring to is auctually the old world.",
+                "JUNO: Why?",
+                "KAMI: You needed motivation.",
+                "JUNO: Who is The Guide?",
+                "KAMI: The Guide was designed to make sure your objective would be completed. Even they don't know what their purpose is.",
+                "KAMI: Anyways... enough chit-chat. Take the lift to the top and restore the desolate world.", "", 
+                "Juno runs to the lift and ascends to the top. Juno places the sun where the shattered one was, and unplugs the computer, and plugging herself into it.",
+                "The New Sun starts shining brighter and brighter until the whole planet is revived.",
+                "",
+            ]);
+            ea("won");
+            return;
+        }
     }
     // if (w("view") || (w("look") && w("around"))) {
     //     respond(["Juno looks around."]);
