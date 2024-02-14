@@ -47,8 +47,12 @@ function commandParser(str) {
             ]);
         }
     } else if (command === "read") {
-        if (game.drive[str.split(" ")[1]]["type"] == "file") {
-            respond(game.drive[str.split(" ")[1]]["content"]);
+        let cDir = game.drive;
+        for (const f of game.directory) {
+            cDir = cDir[f]["content"];
+        }
+        if (cDir[str.split(" ")[1]]["type"] == "file") {
+            respond(structuredClone(cDir[str.split(" ")[1]]["content"]));
             return;
         }
         respond(["Can't find file."]);
@@ -57,17 +61,42 @@ function commandParser(str) {
         for (const f of game.directory) {
             cDir = cDir[f]["content"];
         }
-        if (Object.keys(cDir).includes(str.split(" ")[1]) && game.drive[str.split(" ")[1]].type == "folder") {
+        if (Object.keys(cDir).includes(str.split(" ")[1]) && cDir[str.split(" ")[1]].type == "folder") {
             game.directory.push(str.split(" ")[1]);
-            respond(["Changed directory"]);
+            respond(["Changed directory."]);
             return;
         }
         if (str.split(" ")[1] === "../" && game.directory.length > 0) {
             game.directory.pop();
-            respond(["Changed directory"]);
+            respond(["Changed directory."]);
             return;
         }
         respond(["Failed to change directory"]);
+    } else if (command === "mv") {
+        let cDir = game.drive;
+        for (const f of game.directory) {
+            cDir = cDir[f]["content"];
+        }
+        if (!Object.keys(cDir).includes(str.split(" ")[1])) {
+            respond(["Couldn't find file."]);
+            return;
+        }
+        if (!cDir[str.split(" ")[1]].type == "file") {
+            respond(["Couldn't find file."]);
+            return;
+        }
+        if (!Object.keys(cDir).includes(str.split(" ")[2])) {
+            respond(["Couldn't find folder."]);
+            return;
+        }
+        if (!cDir[str.split(" ")[2]].type == "folder") {
+            respond(["Couldn't find folder."]);
+            return;
+        }
+        cDir[str.split(" ")[2]].content[str.split(" ")[1]] = cDir[str.split(" ")[1]];
+        delete cDir[str.split(" ")[1]];
+        respond(["File moved successfully."]);
+        return;
     } else if (command === "ls") {
         let cDir = game.drive;
         for (const f of game.directory) {
@@ -124,7 +153,17 @@ function commandParser(str) {
         currentBuffer.lines = [];
         currentBuffer.scroll = 0;
     } else if (command === "thelasthope" && game.installed.includes("thelasthope")) {
-        currentBuffer = theLastHopeBuffer;      
+        currentBuffer = theLastHopeBuffer;
+        if (Object.keys(game.drive["theLastHope"].content).includes("juno.char")) {
+            lc("entrance");
+            respond(["After wandering the abyss for what seems like an eternity, Juno blinks and is back on the boat.", "",
+            "AUTOMATON: Getting sea sick?",
+            "JUNO: No... I just had a nightmare.",
+            "AUTOMATON: That's good to hear. This voyage is coming to an end.", "",
+            "As soon as the boat reached the tower's port, Juno got off."
+
+        ]);
+        }
     } else if (command === "") {}
     else {
         respond([`'${command}' is not recognized as an internal or external command or operable program.`, "Use the `help` command to view internal commands."]);
@@ -133,6 +172,10 @@ function commandParser(str) {
 let mostRecent;
 function messageParser(str) {
     mostRecent = str;
+    if (e("sleep") && !w("awake")) {
+        
+        return;
+    }
     if (w("dip") && w("carpet") && w("alcohol") && e("pickAlcohol") && e("pickCarpet")) {
         respond(["Juno dips the piece of carpet into the bottle of alcohol."]);
         ir("Ripped carpet");
@@ -414,7 +457,7 @@ function messageParser(str) {
                 respond(["Juno accesses the computer."]);
                 currentBuffer = commandBuffer;
                 respond(["I can see your loyalty in helping Juno return back home. The next area is deadly without a gas mask. Luckily, there is one inside the safe in the starting house. Unfortunately, the code for it no longer exists in the world. I had to pull it out as it started to get corrupted by The Null Zone. Just check your documents you will find it there."]);
-                game.drive["Documents"].content["safeCode.txt"] = {type: "file", content: ["438753"]}
+                game.drive["Documents"].content["safeCode.txt"] = {type: "file", content: ["438753"], readable: true}
                 ea("computer2");
                 return;
             }
@@ -473,21 +516,33 @@ function messageParser(str) {
         if (w("bucket")) {
             respond(["Juno grabs the bucket of the automaton's head."]);
             ia("Bucket");
+            ea("pickBucket")
             return;
         }
         if (w("automaton") && !e("auto3")) {
-            respond(["Juno walks up to the edge of the port.", "",
-                "AUTOMATON: *stares into the light*", 
-                "AUTOMATON: Need a ride?",
-                "JUNO: Yeah!",
-                "AUTOMATON: Where do you want to go?",
-                "JUNO: To the tower.",
-                "AUTOMATON: *attempts to start the boat*",
-                "AUTOMATON: Unfortunately, the boat is missing an engine and can't go anywhere.",
-                "JUNO: Okay... so... I need to find a engine for you?",
-                "AUTOMATON: *Doesn't respond as it hasn't been freed.*"
-            ]);
-            ea("auto3");
+            if (e("pickBucket")) {
+                respond(["Juno walks up to the edge of the port.", "",
+                    "AUTOMATON: *stares into the light*", 
+                    "AUTOMATON: Need a ride?",
+                    "JUNO: Yeah!",
+                    "AUTOMATON: Where do you want to go?",
+                    "JUNO: Take me to the tower.",
+                    "AUTOMATON: *attempts to start the boat*",
+                    "AUTOMATON: Unfortunately, the boat is missing an engine and can't go anywhere.",
+                    "JUNO: Okay... so... I need to find a engine for you?",
+                    "AUTOMATON: *Doesn't respond as it hasn't been freed.*"
+                ]);
+                ea("auto3");
+
+            } else {
+                respond([
+                    "Juno walks up to the edge of the port.", "",
+                    "JUNO: Can you help me?",
+                    "AUTOMATON: DOING SELF-EVALUATION. SIGHT IS BLOCKED.", "",
+                    "The bucket on its head is most likely blocking its vision."
+                ]);
+            }
+            
             return;
         }
         if (w("engine") && e("ruins")&& !e("installBrokenEngine")) {
@@ -509,7 +564,7 @@ function messageParser(str) {
             ea("fixEngine");
             return;
         }
-        if ((w("sun") || w("light") || w("orb") && e("fixEngine") && !e("heatEngine"))) {
+        if ((w("sun") || w("light") || w("orb")) && e("fixEngine") && !e("heatEngine")) {
             respond(["Juno puts the orb into the engine."]);
             ir("Orb of light");
             ea("heatEngine");
@@ -523,6 +578,32 @@ function messageParser(str) {
             isEngineFixed();
             return;
         }
+        if ((w("get") || w("hop") || w("boat") && e("fixBoat"))) {
+            respond([
+                "Juno hops into the boat.", "",
+                "AUTOMATON: STARTING VOYAGE TO THE TOWER.", "",
+                "Not even five minutes into the voyage, Juno falls asleep."
+            ]);
+            lc("abyss");
+            ea("abyss");
+            currentBuffer = commandBuffer;
+            respond([
+                "Huh... It seems like The Origin finally figured out how to get rid of us. Juno needs to leave the abyss or else. I know you have elevated privilages in the system, so do me a favor and place Juno back into the game, while I try to fend him off."
+            ]);
+            currentBuffer = theLastHopeBuffer;
+            respond([
+                "Juno finally wakes up. As she looks around she sees nothing. It's as if the endless abyss swallowed her whole. Juno cries out looking for you."
+            ]);
+            game.drive["juno.char"] = {type: "file", content: [""], readable:false};
+            game.drive["theLastHope"] = {type: "folder", content: {}, readable:false};
+
+            ea("sleep");
+            return;
+        }
+    }
+    if (l("abyss")) {
+        respond(["Juno can't hear you."]);
+        return;
     }
     // if (w("view") || (w("look") && w("around"))) {
     //     respond(["Juno looks around."]);
@@ -541,8 +622,10 @@ function isEngineFixed() {
     if (e("waterEngine") && e("heatEngine")) {
         respond([
             "AUTOMATON: *Scans engine.*",
-            "AUTOMATON: ENGINE DIAGNOSTIC COMPLETE. The engine is fully functional."
+            "AUTOMATON: ENGINE DIAGNOSTIC COMPLETE. The engine is fully functional.",
+            "AUTOMATON: Get into the boat to start the voyage to the tower."
         ]);
+        ea("fixBoat");
         return;
     }
 }

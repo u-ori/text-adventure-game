@@ -9,12 +9,14 @@ game = {
     drive: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).drive : {
         "Documents": {
             type: "folder",
+            readable: true,
             content: {}
         },
-        // "text.txt": {
-        //     type: "file",
-        //     content: ["test\neee"]
-        // }
+        "text.txt": {
+            type: "file",
+            content: ["test\neee"],
+            readable: false
+        }
     },
     directory: localStorage.getItem("autosave") ? JSON.parse(localStorage.getItem("autosave")).directory : []
 }
