@@ -229,7 +229,7 @@ function messageParser(str) {
             lc("startBathroom");
             return;
         }
-        if ((w("read") || w("note")) && e("pickNote")) {
+        if ((w("read") && w("note")) && e("pickNote")) {
             respond(["The note says: \"123456\""]);
             return;
         }
@@ -243,7 +243,7 @@ function messageParser(str) {
             respond(["Juno picks up a piece of the ripped up carpet."]);
             return;
         }
-        if ((w("go") || w("living")) && e("computerStartDone")) {
+        if (w("living") && e("computerStartDone")) {
             respond(["Juno goes to the living room. There is a locked door. There is another door that leads to the kitchen. There is a unlit fireplace with a shattered television."])
             lc("startLiving");
             return;
@@ -260,7 +260,7 @@ function messageParser(str) {
             lc("startBedroom");
             return;
         }
-        if ((w("grab") || w("note")) && e("openCabinet")) {
+        if ((w("grab") && w("note")) && e("openCabinet")) {
             if (e("pickNote")) {
                 respond(["Juno already grabbed the note."]);
                 return;
@@ -270,7 +270,7 @@ function messageParser(str) {
             ea("pickNote");
             return;
         }
-        if ((w("read") || w("note")) && e("pickNote")) {
+        if ((w("read") && w("note")) && e("pickNote")) {
             respond(["Juno can't read it since it's too dark."]);
             return;
         }
